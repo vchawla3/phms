@@ -11,9 +11,9 @@ CREATE TABLE Person (
 );
 CREATE TABLE PATIENT(
     Person NUMBER(16),
-    Sick Boolean,
-    CONSTRAINT PATIENT_PK(Person),
-    CONSTRAINT PATIENT_FK(Person) REFERENCES Person(Id)
+    Sick NUMBER(1),
+    CONSTRAINT PATIENT_PK (Person),
+    CONSTRAINT PATIENT_FK (Person) REFERENCES Person(Id)
 );
 CREATE TABLE Health_Supporter (
     Supporter NUMBER(16),
