@@ -1,6 +1,7 @@
 package phms.main;
 import java.util.*;
 import phms.model.*;
+import phms.dao.*;
 import java.sql.*;
 /**
 * Personal HealthManagement Database Application for CSC 540
@@ -9,24 +10,14 @@ import java.sql.*;
 */
 public class PersonalHealthManagementDatabaseApplication {
 	static Scanner console;
-
-	static final String jdbcURL 
-	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-	static final String DBuser = "vchawla3";
-	static final String DBpassword = "200006054";
-
+	static PHMSDao dao;
 
 	public static void main (String[] args) {
 		//SETUP DB CONNECTION HERE
-		try{
-			Class.forName("oracle.jdbc.driver.OracleDriver");
-
-			console = new Scanner (System.in);
-			startMenu();
-		}catch(Throwable oops){
-			oops.printStackTrace();
-		}
+		dao = new PHMSDao();
 		
+		console = new Scanner (System.in);
+		startMenu();
 	}
 
 	private static void menuUI(){
