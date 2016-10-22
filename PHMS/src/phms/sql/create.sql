@@ -58,21 +58,22 @@ CREATE TABLE Health_Observation(
     CONSTRAINT HO_HOT_FK FOREIGN KEY (ObservationType) REFERENCES Health_Observation_Type(Id)
 );
 CREATE TABLE Recommendation(
-    Supporter NUMBER(16),
-    ObservationType NUMBER(16),
-    Patient Number(16),
+    HS_Supporter NUMBER(16),
+    HS_Patient Number(16),
+    OBS_Type Number(16),
+    OBS_Patient Number(16),
     DoctorComment VARCHAR(999),
-    CONSTRAINT REC_PK PRIMARY KEY (ObservationType, Patient),
-    CONSTRAINT REC_FK_SUP (Supporter) REFERENCES Health_Supporter(Supporter),
-    CONSTRAINT REC_FK_HO_OT (ObservationType) REFERENCES Health_Observation(ObservationType),
-    CONSTRAINT REC_FK_HO_P (Patient) REFERENCES Health_Observation(Patient)
+    CONSTRAINT REC_PK PRIMARY KEY (HS_Supporter, HS_Patient, OBS_Patient, OBS_Type),
+    CONSTRAINT REC_FK_SUP FOREIGN KEY (HS_Supporter, HS_Patient) REFERENCES Health_Supporter(Supporter, Patient),
+    CONSTRAINT REC_FK_OBST FOREIGN KEY (OBS_Type, OBS_Patient) references Health_Observation(ObservationType, Patient)
 );
 CREATE TABLE ALLERT(
-    ObservationType Number(16),
-    Patient Number(16),
+    HS_Supporter NUMBER(16),
+    HS_Patient Number(16),
+    OBS_Type Number(16),
+    OBS_Patient Number(16),
     Read Number(1),
     Sent Date,
-    CONSTRAINT ALLERT_PK PRIMARY KEY (ObservationType, Patient, Sent),
-    CONSTRAINT ALLERT_FK_P FOREIGN KEY (PATIENT) REFERENCES Recommendation(Patient),
-    CONSTRAINT ALLERT_FK_OBS FOREIGN KEY (ObservationType) REFERENCES Recommendation(ObservationType)
+    CONSTRAINT ALLERT_PK PRIMARY KEY (HS_Supporter, HS_Patient, OBS_Type, OBS_Patient),
+    CONSTRAINT ALLERT_FK_P FOREIGN KEY (HS_Supporter, HS_Patient, OBS_Type, OBS_Patient) REFERENCES Recommendation(HS_Supporter, HS_Patient, OBS_Type, OBS_Patient)
 );
