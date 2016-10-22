@@ -2,7 +2,7 @@ package phms.model;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.util.Date;
+import java.sql.Date;
 
 public abstract class Person {
 	private long ssn;
@@ -25,9 +25,8 @@ public abstract class Person {
 			setSex(rs.getString("Sex"));
 			setPassword(rs.getString("Password"));
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
-			e.printStackTrace();
 			System.out.println("Person ERROR");
+			e.printStackTrace();
 			System.out.println(e.getMessage());
 		}
 	}
