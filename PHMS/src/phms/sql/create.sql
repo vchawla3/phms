@@ -34,7 +34,7 @@ CREATE TABLE Health_Observation_Type(
     Hot_Disease VARCHAR(200),
     Hot_UpperLimit NUMBER(16),
     Hot_LowerLimit NUMBER(16),
-    Hot_Frequency Long,  --Hourly
+    Hot_Frequency Long,
     CONSTRAINT HOT_PK PRIMARY KEY(Hot_Id),
     CONSTRAINT HOT_FK_D FOREIGN KEY (Hot_Disease) REFERENCES Disease(Dis_DiseaseName)
 );
@@ -68,14 +68,13 @@ CREATE TABLE Recommendation(
     CONSTRAINT REC_FK_SUP FOREIGN KEY (Rec_HS_Supporter, Rec_HS_Patient) REFERENCES Health_Supporter(HS_Supporter, HS_Patient),
     CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_OBS_Type, Rec_OBS_Patient) references Health_Observation(Ho_ObservationType, Ho_Patient)
 );
-CREATE TABLE ALLERT(
-    All_HS_Supporter NUMBER(16),
-    All_HS_Patient Number(16),
-    All_OBS_Type Number(16),
-    All_OBS_Patient Number(16),
-    All_Read Number(1),
-    All_Sent Date,
-    CONSTRAINT ALLERT_PK PRIMARY KEY (All_HS_Supporter, All_HS_Patient, All_OBS_Type, All_OBS_Patient),
-    --Todo: Can we simplify the FK's here?
-    CONSTRAINT ALLERT_FK_P FOREIGN KEY (All_HS_Supporter, All_HS_Patient, All_OBS_Type, All_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
+CREATE TABLE ALERT(
+    Al_HS_Supporter NUMBER(16),
+    Al_HS_Patient Number(16),
+    Al_OBS_Type Number(16),
+    Al_OBS_Patient Number(16),
+    Al_Read Number(1),
+    Al_Sent Date,
+    CONSTRAINT ALLERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
+    CONSTRAINT ALLERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
 );
