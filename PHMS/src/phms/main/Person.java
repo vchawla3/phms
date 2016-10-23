@@ -14,20 +14,20 @@ public abstract class Person {
 	private String sex;
 	private String password;
 	
-	public Person(ResultSet rs){
+	public Person(ResultSet rs) throws SQLException{
 		try {
-			setSsn(rs.getInt("Id"));
-			setFname(rs.getString("FirstName"));
-			setLname(rs.getString("LastName"));
-			setDOB(rs.getDate("DateOfBirth"));
-			setAddress(rs.getString("Address"));
-			setPhoneNum(rs.getString("Phone"));
-			setSex(rs.getString("Sex"));
-			setPassword(rs.getString("Password"));
+			setSsn(rs.getInt("Per_Id"));
+			setFname(rs.getString("Per_FirstName"));
+			setLname(rs.getString("Per_LastName"));
+			setDOB(rs.getDate("Per_DateOfBirth"));
+			setAddress(rs.getString("Per_Address"));
+			setPhoneNum(rs.getString("Per_Phone"));
+			setSex(rs.getString("Per_Sex"));
+			setPassword(rs.getString("Per_Password"));
 		} catch (SQLException e) {
 			System.out.println("Person ERROR");
-			e.printStackTrace();
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
+			throw e;
 		}
 	}
 	
