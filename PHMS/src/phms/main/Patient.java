@@ -10,14 +10,14 @@ public class Patient extends Person {
 		
 	}
 
-	public Patient(ResultSet rs){
+	public Patient(ResultSet rs) throws SQLException{
 		super(rs);
 		try{
-			setSick(rs.getInt("Sick"));
+			setSick(rs.getInt("Pat_Sick"));
 		}catch(SQLException e){
 			System.out.println("Patient ERROR");
-			e.printStackTrace();
-			System.out.println(e.getMessage());
+			//System.out.println(e.getMessage());
+			throw e;
 		}	
 	}
 	

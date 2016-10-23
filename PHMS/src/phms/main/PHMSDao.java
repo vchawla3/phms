@@ -5,6 +5,7 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.sql.PreparedStatement;
 //import phms.model.*;
 
 public class PHMSDao {
@@ -24,9 +25,34 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
-	public boolean login(String user, String pass) {
-		// TODO Auto-generated method stub
-		return false;
+	public Patient patientLogin(long user, String pass) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		Patient p = null;
+		try{
+			conn = openConnection();
+			
+			String SQL = "SELECT * FROM PERSON P,PATIENT P2 "
+					+ "WHERE P.Per_Id = ? "
+					+ "AND P2.Pat_Person = ? "
+					+ "AND P.Per_Password = ?";
+					
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, user);
+			stmt.setLong(2, user);
+			stmt.setString(3, pass);
+			rs = stmt.executeQuery(SQL);
+			p = new Patient(rs);	
+			return p;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
 	}
 	
 	public boolean addNewPatient(Patient p){
