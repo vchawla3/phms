@@ -90,3 +90,17 @@ CREATE TABLE ALERT(
     CONSTRAINT ALLERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
     CONSTRAINT ALLERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
 );
+
+-- Query for Health Observation Types that have broken their "recommendation" rule (and generate an allert for them).
+-- 1) Query for recommendations
+-- 2) Query for Health Observations
+-- 3) For each Health Observation that does not meet the minimum/maximum OR is outside the threshold, 
+-- 4) Generate an allert
+
+-- So we really need two triggers, one for Thresholds and one for Frequencies
+
+/*
+    1) Query for health observations that break their threshold for a particular user
+
+    Select health observations for a user WHERE EXISTS(Recommendation for user) AND 
+*/
