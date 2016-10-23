@@ -7,7 +7,7 @@
 
 
 ## Trigger
-- [ ] (Generate allerts) check to see if they have missed a recommendation [based on
+- [ ] (Generate alerts) check to see if they have missed a recommendation [based on
   frequency]
 
 ## Notes

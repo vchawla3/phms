@@ -1,0 +1,1 @@
+-- Add queries required for the application

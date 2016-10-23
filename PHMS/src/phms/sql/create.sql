@@ -44,8 +44,8 @@ CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
     Hot_Disease VARCHAR(200),
-    Hot_UpperLimit NUMBER(16),
-    Hot_LowerLimit NUMBER(16),
+    Hot_UpperLimit LONG,
+    Hot_LowerLimit LONG,
     Hot_Frequency Long,
     CONSTRAINT HOT_PK PRIMARY KEY(Hot_Id),
     CONSTRAINT HOT_FK_D FOREIGN KEY (Hot_Disease) REFERENCES Disease(Dis_DiseaseName)
@@ -81,26 +81,55 @@ CREATE TABLE Recommendation(
     CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_OBS_Type, Rec_OBS_Patient) references Health_Observation(Ho_ObservationType, Ho_Patient)
 );
 CREATE TABLE ALERT(
+-- TODO : Discuss whether Al_HS_Supporter is required or not
     Al_HS_Supporter NUMBER(16),
     Al_HS_Patient Number(16),
     Al_OBS_Type Number(16),
-    Al_OBS_Patient Number(16),
     Al_Read Number(1),
     Al_Sent Date,
+    Al_Alert VARCHAR(999),
     CONSTRAINT ALLERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
     CONSTRAINT ALLERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
 );
 
+/*
 -- Query for Health Observation Types that have broken their "recommendation" rule (and generate an allert for them).
 -- 1) Query for recommendations
 -- 2) Query for Health Observations
 -- 3) For each Health Observation that does not meet the minimum/maximum OR is outside the threshold, 
 -- 4) Generate an allert
 
--- So we really need two triggers, one for Thresholds and one for Frequencies
+-- So we really need two triggers, one for Thresholds and one for Frequencies.
 
-/*
     1) Query for health observations that break their threshold for a particular user
 
     Select health observations for a user WHERE EXISTS(Recommendation for user) AND 
+
+
+-- This Trigger is executed whenever a VALUE is added in Table Health_Observation.
+-- It will compare HO_Value with Hot_UpperLimit & Hot_LowerLimit. If the HO_Value is not 
+-- in the specified range. It will generate an ALERT and populate the Al_Alert field in table
+-- ALERT with something on the lines "Hot_Name(observationtype) for patient(Per_Id) is not in 
+-- the specified range. Immediate action required."
 */
+
+-- Test Pending
+
+CREATE TRIGGER alert_range
+AFTER INSERT OR UPDATE OF Ho_Value ON Health_Observation
+WHEN
+    DECLARE out_of_bounds INT;
+    DECLARE u_limit, l_limit LONG;
+    SET out_of_bounds = 1;
+    select Hot_UpperLimit, Hot_LowerLimit INTO u_limit, l_limit FROM Health_Observation_Type
+    WHERE Ho_ObservationType = Health_Observation_Type.Hot_Id;
+    IF (NEW.Ho_Value > l_limit AND NEW.Ho_Value < u_limit) THEN
+        out_of_bounds = 0
+    END IF;
+    IF (out_of_bounds = 1) THEN
+    -- TODO : Add health supporter into ALERT or change tables accordingly.
+        INSERT INTO ALERT VALUES(NEW.Ho_Patient, NEW.Ho_ObservationType, 0, NEW.Ho_DateTaken, CONCAT(NEW.Ho_ObservationType,'for', NEW.Ho_Patient, 'is not in the specified range. Immediate action required.'));
+    END IF;
+END;
+\
+
