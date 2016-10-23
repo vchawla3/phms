@@ -1,10 +1,10 @@
-package phms.model;
+package phms.main;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class Patient extends Person {
-	private boolean sick;
+	private int sick;
 	
 	public Patient(){
 		
@@ -13,7 +13,7 @@ public class Patient extends Person {
 	public Patient(ResultSet rs){
 		super(rs);
 		try{
-			setSick(rs.getBoolean("Sick"));
+			setSick(rs.getInt("Sick"));
 		}catch(SQLException e){
 			System.out.println("Patient ERROR");
 			e.printStackTrace();
@@ -21,11 +21,11 @@ public class Patient extends Person {
 		}	
 	}
 	
-	public boolean isSick() {
+	public int isSick() {
 		return sick;
 	}
 
-	public void setSick(boolean sick) {
+	public void setSick(int sick) {
 		this.sick = sick;
 	}
 }

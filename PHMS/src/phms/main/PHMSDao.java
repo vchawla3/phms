@@ -1,11 +1,11 @@
-package phms.dao;
+package phms.main;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
-import phms.model.*;
+//import phms.model.*;
 
 public class PHMSDao {
 	static final String jdbcURL 
@@ -22,6 +22,11 @@ public class PHMSDao {
 //        Connection conn = null;
 //        Statement stmt = null;
 //        ResultSet rs = null;
+	}
+	
+	public boolean login(String user, String pass) {
+		// TODO Auto-generated method stub
+		return false;
 	}
 	
 	public boolean addNewPatient(Patient p){
@@ -65,6 +70,8 @@ public class PHMSDao {
 	private Connection openConnection() throws SQLException{
 		try {
 			Connection conn = DriverManager.getConnection(jdbcURL, DBuser, DBpassword);
+			//Connection conn = new Connection();
+			
 			return conn;
 		} catch (SQLException e) {
 			// TODO Auto-generated catch block
@@ -92,4 +99,31 @@ public class PHMSDao {
             try { rs.close(); } catch(Throwable whatever) {}
         }
     }
+
+  //just testing the DB connection to create/insert/select data, no real use
+  	public boolean test(){
+  		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			//stmt.executeUpdate("create table TEST1(val1 integer)");
+  			//stmt.executeUpdate("insert into TEST values(3)");
+  			//stmt.executeUpdate("insert into TEST values(4)");
+  			//rs = stmt.executeQuery("SELECT * FROM TEST");
+  			while (rs.next()) {
+  			    int s = rs.getInt("VAL1");
+  			    System.out.println(s);
+  			}
+  			return true;
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  			return false;
+  		} finally {
+  			close(stmt);
+              close(conn);
+  		}
+  	}
 }
