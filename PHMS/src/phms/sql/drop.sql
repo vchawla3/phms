@@ -1,13 +1,13 @@
--- First drop data tables
-DROP TABLE ALLERT;
-DROP TABLE Recommendation;
-DROP SEQUENCE Health_Obs_Seq;
-DROP Trigger HealthObs_AI;
-DROP TABLE Health_Observation;
--- Then drop lookup tables
-DROP TABLE Health_Observation_Type;
-DROP TABLE Disease;
--- Then drop user tables
-DROP TABLE Health_Supporter;
-DROP TABLE Patient;
-DROP TABLE Person;
+-- first drop data tables
+drop table allert;
+drop table recommendation;
+drop sequence health_obs_seq;
+drop trigger healthobs_ai;
+drop table health_observation;
+-- then drop lookup tables
+drop table health_observation_type;
+drop table disease;
+-- then drop user tables
+drop table health_supporter;
+drop table patient;
+drop table person;
