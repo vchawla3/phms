@@ -13,7 +13,19 @@ CREATE TABLE PATIENT(
     Pat_Person NUMBER(16),
     Pat_Sick NUMBER(1),
     CONSTRAINT PATIENT_PK PRIMARY KEY (Pat_Person),
-    CONSTRAINT PATIENT_FK FOREIGN KEY (Pat_Person) REFERENCES Person(Per_Id)
+    CONSTRAINT PATIENT_FK FOREIGN KEY (Pat_Person) REFERENCES Person(Per_Id),
+    CONSTRAINT HS_Constraints 
+        CHECK(SELECT 
+                COUNT(*)
+              from Health_Supporter 
+              where Health_Supporter.HS_Patient = Pat_Person) <= 2)
+    CONSTRAINT HS_SickPatient
+        CHECK(
+            (SELECT 
+                COUNT(*)
+             from Health_Supporter 
+             where Pat_Sick=1 AND Health_Supporter.HS_Patient = Pat_Person) BETWEEN 1 AND 2 
+        )
 );
 CREATE TABLE Health_Supporter(
     HS_Supporter NUMBER(16),
