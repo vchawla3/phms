@@ -280,9 +280,8 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println("---------------------");
 			System.out.println("1. View Diseases");
 			System.out.println("2. Add Disease");
-			System.out.println("3. Edit Disease");
-			System.out.println("4. Remove Disease");
-			System.out.println("5. Back To Patient Menu");
+			System.out.println("3. Remove Disease");
+			System.out.println("4. Back To Patient Menu");
 		
 			int input;
 			try{
@@ -302,12 +301,9 @@ public class PersonalHealthManagementDatabaseApplication {
 					addDisease(p);
 					break;
 				case 3:
-				
+					removeDisease(p);
 					break;
 				case 4:
-					
-					break;
-				case 5:
 					keep = false;
 					break;
 			}
@@ -334,20 +330,29 @@ public class PersonalHealthManagementDatabaseApplication {
 		if(dao.addDiseaseForPatient(p.getSsn(), dis)){
 			p.setSick(1);
 		}
-		patientMenu(p);
 	}
-	private static void removeDisease(ArrayList<String> patientsDiseases, Patient p){
+
+	private static void removeDisease(Patient p){
+		ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
 		System.out.println("Select number for the disease to remove");
 		System.out.println("---------------------");
+		int s = patientsDiseases.size();
+		for (int i = 0; i < s; i++) {
+			System.out.println((i+1) + ": "+ patientsDiseases.get(i));
+		}
+		
 		int selection = Integer.parseInt(console.nextLine());
-		while(selection - 1 >= patientsDiseases.size()){
+		while(selection - 1 >= s){
 			System.out.println("Invalid seletion, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
+		String dis = patientsDiseases.get(selection);
+		//dao.removeDiseaseForPatient(p.getSsn(),dis);
+		System.out.println("---------------------");
 	}
+	
 	private static void showPatientDiseases(Patient p){
-		
 		if (p.isSick() == 1){
 			ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
 			System.out.println(p.getFname() + " " + p.getLname() + "'s Diseases!");
