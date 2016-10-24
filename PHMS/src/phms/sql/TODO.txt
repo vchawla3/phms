@@ -20,14 +20,14 @@
 - [x] Find patients who have two health supporters
 - [ ] For each patient and each month of 2015, list allerts generated
 - [ ] For each month of 2015, list the patients with the most alerts
-- [ ] Insert Patients/Health Supporters
+- [x] Insert Patients/Health Supporters
 - [ ] Retrieve people who could be the current user's health supporters
 - [ ] Retrieve Recommendations for a person (and as a Health Supporter)
 - [ ] Retrieve Alerts for a user (and as a Health Supporter)
 - [ ] Retrieve Health Observations (thresholds) for a user (and as a Health
   Supporter)
 - [x] Retrieve the user's diseases (And as a Health supporter
-- [ ] Remove/Delete a Health Supporter
+- [x] Remove/Delete a Health Supporter
 - [x] List the patients who are not ‘sick’.
 - [ ] How many patients have different observation time and recording time (of the observation).
 - [x] List the health supporters who themselves are patients.

@@ -40,7 +40,8 @@ WHERE pd.Pd_Patient IN (SELECT p.Per_Id FROM Person p, PATIENT pa, Health_Suppor
 SELECT * FROM Person p, PATIENT pa, Health_Supporter h
 WHERE h.HS_Supporter = ? AND p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND h.HS_Patient = pa.Pat_Person;
 
- 
+--Remove/Delete current HealthSupporter Account (w/ hs ssn passed in)--
+DELETE FROM Health_Supporter WHERE HS_Supporter = ?
 
 
 

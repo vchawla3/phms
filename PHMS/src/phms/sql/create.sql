@@ -50,6 +50,8 @@ CREATE TABLE PatientDisease(
 	--another constraint where patient must be sick!--
 );
 
+
+
 --trigger to make a patient a 'sick' patient if they add a disease--
 CREATE OR REPLACE TRIGGER PD_PatMustBeSick
 AFTER INSERT ON PatientDisease
