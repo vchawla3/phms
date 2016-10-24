@@ -1,4 +1,5 @@
 package phms.main;
+import java.util.ArrayList;
 import java.util.Calendar;
 import java.util.Scanner;
 //import phms.model.*;
@@ -55,6 +56,9 @@ public class PersonalHealthManagementDatabaseApplication {
 						System.out.println("Login Incorrect");
 						menuUI();
 						invalid = false;
+					} else if (user.isSick() == 1) {
+						//check if user has at least 1 HS
+						patientMenu(user);
 					} else {
 						patientMenu(user);	
 					}
@@ -245,7 +249,7 @@ public class PersonalHealthManagementDatabaseApplication {
 					showProfile(p);
 					break;
 				case 2:
-
+					diseaseMenu(p);
 					break;
 				case 3:
 
@@ -269,8 +273,98 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 	}
 	
+	private static void diseaseMenu(Patient p){
+		boolean keep = true;
+		while(keep){
+			System.out.println("Make a selection");
+			System.out.println("---------------------");
+			System.out.println("1. View Diseases");
+			System.out.println("2. Add Disease");
+			System.out.println("3. Edit Disease");
+			System.out.println("4. Remove Disease");
+			System.out.println("5. Back To Patient Menu");
+		
+			int input;
+			try{
+				input = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				input = 0;
+			}
+			switch(input){
+				case 0:
+					System.out.println("Invalid input, back to Patient Menu!!!!!");
+					keep = false;
+					break;
+				case 1:
+					showPatientDiseases(p);
+					break;
+				case 2:
+					addDisease(p);
+					break;
+				case 3:
+				
+					break;
+				case 4:
+					
+					break;
+				case 5:
+					keep = false;
+					break;
+			}
+		}
+		patientMenu(p);
+		
+	}
+	private static void addDisease(Patient p){
+		ArrayList<String> allDiseases = dao.getAllDiseases();
+		int size = allDiseases.size();
+		System.out.println("Select A Disease to Add");
+		System.out.println("---------------------");
+		for (int i = 0; i < size; i++) {
+			System.out.println((i+1) + ": "+ allDiseases.get(i));
+		}
+		System.out.println("---------------------");
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= size){
+			System.out.println("Invalid seletion, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+		String dis = allDiseases.get(selection);
+		if(dao.addDiseaseForPatient(p.getSsn(), dis)){
+			p.setSick(1);
+		}
+		patientMenu(p);
+	}
+	private static void removeDisease(ArrayList<String> patientsDiseases, Patient p){
+		System.out.println("Select number for the disease to remove");
+		System.out.println("---------------------");
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= patientsDiseases.size()){
+			System.out.println("Invalid seletion, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+	}
+	private static void showPatientDiseases(Patient p){
+		
+		if (p.isSick() == 1){
+			ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
+			System.out.println(p.getFname() + " " + p.getLname() + "'s Diseases!");
+			System.out.println("---------------------");
+			int s = patientsDiseases.size();
+			for (int i = 0; i < s; i++) {
+				System.out.println((i+1) + ": "+ patientsDiseases.get(i));
+			}
+			System.out.println("---------------------");
+		} else {
+			System.out.println(p.getFname() + " " + p.getLname() + " is Well, so no diseases!");
+			System.out.println("---------------------");
+		}
+	}
+	
 	private static void showProfile(Patient p){
-		System.out.println("Profile Info");
+		System.out.println(p.getFname() + " " + p.getLname() + "'s Profile Info");
 		System.out.println("---------------------");
 		System.out.println("SSN: " + p.getSsn());
 		System.out.println("Name: " + p.getFname() + " " + p.getLname());

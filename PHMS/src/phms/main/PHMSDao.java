@@ -27,6 +27,76 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
+	public boolean addDiseaseForPatient(long ssn, String dis){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try{
+			conn = openConnection();
+			String SQL = "INSERT INTO PatientDisease VALUES(?,?)";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, ssn);
+			stmt.setString(2, dis);
+			stmt.executeUpdate(SQL);
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public ArrayList<String> getPatientsDiseases(long ssn){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<String> diseases = new ArrayList<String>();
+		try{
+			conn = openConnection();
+			String SQL = "SELECT * FROM PatientDisease WHERE Pd_Patient = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, ssn);
+			rs = stmt.executeQuery(SQL);
+			while (rs.next()) {
+				diseases.add(rs.getString("Pd_DiseaseName"));
+			}
+			return diseases;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public ArrayList<String> getAllDiseases(){
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		ArrayList<String> diseases = new ArrayList<String>();
+		try{
+			conn = openConnection();
+			stmt = conn.createStatement();
+			String SQL = "SELECT * FROM Disease";
+			rs = stmt.executeQuery(SQL);
+			while (rs.next()) {
+				diseases.add(rs.getString("Dis_DiseaseName"));
+			}
+			return diseases;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public Patient patientLogin(long user, String pass) {
 		Connection conn = null;
 		PreparedStatement stmt = null;
