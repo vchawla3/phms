@@ -40,6 +40,16 @@ CREATE TABLE Disease(
     Dis_DiseaseName VARCHAR(200),
     CONSTRAINT DISEASE_PK PRIMARY KEY(Dis_DiseaseName)
 );
+
+CREATE TABLE PatientDisease(
+	Pd_Patient NUMBER(16),
+	Pd_DiseaseName VARCHAR(200),
+	CONSTRAINT HS_PK PRIMARY KEY(Pd_Patient, Pd_DiseaseName),
+	CONSTRAINT Pd_P FOREIGN KEY(Pd_Patient) REFERENCES Person(Per_Id),
+	CONSTRAINT Pd_D FOREIGN KEY(Pd_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
+	--another constraint where patient must be sick!--
+);
+
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
