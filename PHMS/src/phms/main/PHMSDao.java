@@ -5,6 +5,8 @@ import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
 import java.sql.PreparedStatement;
 //import phms.model.*;
 
@@ -55,6 +57,82 @@ public class PHMSDao {
 		}
 	}
 	
+	public HealthSupporter healthSupporterLogin(long user, String pass) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		HealthSupporter h = null;
+		try{
+			conn = openConnection();
+			
+			String SQL = "SELECT * FROM PERSON P, Health_Supporter H "
+					+ "WHERE P.Per_Id = ? "
+					+ "AND H.HS_Supporter = ? "
+					+ "AND P.Per_Password = ?";
+					
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, user);
+			stmt.setLong(2, user);
+			stmt.setString(3, pass);
+			rs = stmt.executeQuery(SQL);
+			h = new HealthSupporter(rs);	
+			return h;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public boolean editPatient(Patient p){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		
+		try{
+			conn = openConnection();
+			//Update the person table
+			String SQL = "UPDATE PERSON SET "
+					+ "Per_FirstName = ?,"
+					+ "Per_LastName = ?,"
+					+ "Per_DateOfBirth = ?," 
+					+ "Per_Address = ?,"
+					+ "Per_Phone = ?,"
+					+ "Per_Sex = ?,"
+					+ "Per_Password = ?"
+					+ "WHERE Per_Id = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, p.getFname());
+			stmt.setString(2, p.getLname());
+			stmt.setDate(3, p.getDOB());
+			stmt.setString(4, p.getAddress());
+			stmt.setString(5, p.getPhoneNum());
+			stmt.setString(6, p.getSex());
+			stmt.setString(6, p.getPassword());
+			stmt.setLong(7, p.getSsn());
+			stmt.executeUpdate(SQL);
+			close(stmt);
+			
+			//update the patient table
+			SQL =  "UPDATE PATIENT SET "
+				+ "Pat_Sick = ?"
+				+ "WHERE Pat_Person = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setInt(1, p.isSick());
+			stmt.setLong(2, p.getSsn());
+			stmt.executeUpdate(SQL);	
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public boolean addNewPatient(Patient p){
 		Connection conn = null;
 		Statement stmt = null;
@@ -88,8 +166,66 @@ public class PHMSDao {
 			close(stmt);
             close(conn);
 		}
-		
-		
+	}
+	
+	public ArrayList<String> getAllPatientSSNs(){
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		ArrayList<String> ssns = new ArrayList<String>();
+		try{
+			conn = openConnection();
+			stmt = conn.createStatement();
+			String SQL = "SELECT Pat_Person FROM PERSON";
+			rs = stmt.executeQuery(SQL);
+			while (rs.next()) {
+			    ssns.add(rs.getString("Pat_Person"));
+			}
+			return ssns;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public boolean addNewHS(HealthSupporter p){
+		Connection conn = null;
+		Statement stmt = null;
+		try{
+			conn = openConnection();
+			stmt = conn.createStatement();
+			String SQL = "INSERT INTO PERSON "
+					+ "VALUES ("
+					+ p.getSsn() + ","
+					+ p.getFname() + ","
+					+ p.getLname() + ","
+					+ p.getDOB() + ","
+					+ p.getAddress() + ","
+					+ p.getPhoneNum() + ","
+					+ p.getSex() + ","
+					+ p.getPassword() + ""
+					+ ")";
+			stmt.executeUpdate(SQL);
+			SQL =  "INSERT INTO Health_Supporter "
+				+ "VALUES ("
+				+ p.getSsn() + ","
+				+ p.getSupportingPatientID() + ","
+				+ p.getDateAuthorized() + ","
+				+ p.getDateUnauthorized()
+				+ ")";
+			stmt.executeUpdate(SQL);	
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
 	}
 	
 	

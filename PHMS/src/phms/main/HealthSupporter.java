@@ -14,7 +14,7 @@ public class HealthSupporter extends Person {
 		
 	}
 	
-	public HealthSupporter(ResultSet rs){
+	public HealthSupporter(ResultSet rs) throws SQLException{
 		super(rs);
 		try{
 			setSupportingPatientID(rs.getInt("Patient"));
@@ -22,8 +22,9 @@ public class HealthSupporter extends Person {
 			setDateUnauthorized(rs.getDate("DateUnauthorized"));
 		}catch(SQLException e){
 			System.out.println("HealthSupporter ERROR");
-			e.printStackTrace();
-			System.out.println(e.getMessage());
+			//e.printStackTrace();
+			throw e;
+			//System.out.println(e.getMessage());
 		}
 	}
 
