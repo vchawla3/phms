@@ -258,7 +258,7 @@ public class PersonalHealthManagementDatabaseApplication {
 
 					break;
 				case 5:
-
+					patientViewsHS(p);
 					break;
 				case 6:
 					startMenu();
@@ -271,6 +271,93 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 		} while(!invalid);
 		
+	}
+	
+	private static void patientViewsHS(Patient p){
+		boolean keep = true;
+		while(keep){
+			System.out.println("---------------------");
+			System.out.println("1. View Health Supporters");
+			System.out.println("2. Edit Health Supporters ");
+			System.out.println("3. Add Health Supporters ");
+			System.out.println("4. Remove Health Supporters ");
+			System.out.println("5. Back to Patient Menu ");
+			System.out.println("---------------------");
+			int input;
+			try{
+				input = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				input = 0;
+			}
+			switch(input){
+				case 0:
+					System.out.println("Invalid input, back to Patient Menu!!!!!");
+					keep = false;
+					break;
+				case 1:
+					viewHS(p);
+					break;
+				case 2:
+					editHS(p);		
+					break;
+				case 3:
+					addHS(p);
+					break;
+				case 4:
+					removeHS(p);
+					break;
+				case 5:
+					keep = false;
+					break;
+			}
+		}
+		patientMenu(p);
+	}
+	
+	private static void viewHS(Patient p){
+		System.out.println("List of all Health Supporters");
+		System.out.println("---------------------");
+		ArrayList<HealthSupporter> hs = dao.getPatientsHS(p);
+		for(int i = 0; i < hs.size(); i++){
+			HealthSupporter h = hs.get(i);
+			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		}
+	}
+	private static void editHS(Patient p){
+		System.out.println("Select a Health Supporters to Edit");
+		System.out.println("---------------------");
+		ArrayList<HealthSupporter> hs = dao.getPatientsHS(p);
+		for(int i = 0; i < hs.size(); i++){
+			HealthSupporter h = hs.get(i);
+			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		}
+	}
+	private static void addHS(Patient p){
+		System.out.println("Select a Health Supporters to Add");
+		System.out.println("---------------------");
+	}
+	
+	
+	private static void removeHS(Patient p){
+		System.out.println("Select a Health Supporters to Remove");
+		System.out.println("---------------------");
+		ArrayList<HealthSupporter> hs = dao.getPatientsHS(p);
+		for(int i = 0; i < hs.size(); i++){
+			HealthSupporter h = hs.get(i);
+			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		}
+		
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= hs.size()){
+			System.out.println("Invalid seletion, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+		HealthSupporter h = hs.get(selection);
+		if (dao.removeHSForPatient(p.getSsn(), h)){
+			System.out.println("Success, HS removed!");
+		};
+		System.out.println("---------------------");
 	}
 	
 	private static void diseaseMenu(Patient p){
@@ -348,7 +435,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		selection--;
 		String dis = patientsDiseases.get(selection);
-		//dao.removeDiseaseForPatient(p.getSsn(),dis);
+		dao.removeDiseaseForPatient(p.getSsn(),dis);
 		System.out.println("---------------------");
 	}
 	

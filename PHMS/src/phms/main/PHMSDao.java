@@ -27,6 +27,77 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
+	public ArrayList<HealthSupporter> getPatientsHS(Patient p){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<HealthSupporter> hs = new ArrayList<HealthSupporter>();
+		try{
+			conn = openConnection();
+			String SQL = "SELECT * FROM PERSON p, Health_Supporter h "
+					+ "WHERE h.HS_Patient = ? AND h.HS_Supporter = p.Per_Id";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, p.getSsn());
+			rs = stmt.executeQuery(SQL);
+			while (rs.next()) {
+				HealthSupporter h = new HealthSupporter(rs);
+				hs.add(h);
+			}
+			return hs;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public boolean removeHSForPatient(long ssn, HealthSupporter h) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try{
+			conn = openConnection();
+			String SQL = "DELETE FROM HealthSupporter WHERE HS_Supporter = ?, HS_Patient = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, h.getSsn());
+			stmt.setLong(2, ssn);
+			stmt.executeUpdate(SQL);
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+		
+	}
+	
+	public boolean removeDiseaseForPatient(long ssn, String dis) {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		try{
+			conn = openConnection();
+			String SQL = "DELETE FROM PatientDisease WHERE Pd_Patient = ?, Pd_DiseaseName = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, ssn);
+			stmt.setString(2, dis);
+			stmt.executeUpdate(SQL);
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+		
+	}
+	
 	public boolean addDiseaseForPatient(long ssn, String dis){
 		Connection conn = null;
 		PreparedStatement stmt = null;
