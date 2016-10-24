@@ -43,6 +43,46 @@ WHERE h.HS_Supporter = ? AND p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND h.
 --Remove/Delete current HealthSupporter Account (w/ hs ssn passed in)--
 DELETE FROM Health_Supporter WHERE HS_Supporter = ?
 
+-- Retrieve people who could be the current user's health supporters
+-- Patient can not support themselves and current supporters can not support
+select 
+    * 
+from 
+    Person
+where
+    Per_ID != 1
+    AND
+    Per_Id NOT IN ( select HS_Supporter
+                      from  Health_Supporter
+                      where HS_Patient = 1);
 
+-- Retrieve recommendations for a particular patient
+select * from Recommendation where Rec_HS_Patient = 1;
 
+-- Retrieve all alerts for a user
+select
+    * 
+from
+    alert
+where
+    Al_OBS_Patient = 1
+    AND
+    AL_READ = 0
 
+-- Retrieve Health Observations (thresholds) for a user
+select 
+    Hot_Name,
+    Hot_UpperLimit,
+    Hot_LowerLimit,
+    Hot_Frequency
+from
+    Health_Observation_Type
+where
+    Hot_Id in (
+        SELECT 
+            Ho_ObservationType
+        from
+            Health_Observation
+        where
+            Ho_Patient = 1
+    )

@@ -15,16 +15,16 @@
 
 ## SQL Queries
 - [x] Find patients who belong to more than one sick patient class (that have more
-  [ ] than one disease)
+      than one disease)
 - [x] Find all sick patients whose health supporters are also sick patients
 - [x] Find patients who have two health supporters
 - [ ] For each patient and each month of 2015, list allerts generated
 - [ ] For each month of 2015, list the patients with the most alerts
 - [x] Insert Patients/Health Supporters
-- [ ] Retrieve people who could be the current user's health supporters
-- [ ] Retrieve Recommendations for a person (and as a Health Supporter)
-- [ ] Retrieve Alerts for a user (and as a Health Supporter)
-- [ ] Retrieve Health Observations (thresholds) for a user (and as a Health
+- [x] Retrieve people who could be the current user's health supporters
+- [x] Retrieve Recommendations for a person (and as a Health Supporter)
+- [x] Retrieve Alerts for a user (and as a Health Supporter)
+- [x] Retrieve Health Observations (thresholds) for a user (and as a Health
   Supporter)
 - [x] Retrieve the user's diseases (And as a Health supporter
 - [x] Remove/Delete a Health Supporter

@@ -41,12 +41,12 @@ CREATE TABLE Disease(
     CONSTRAINT DISEASE_PK PRIMARY KEY(Dis_DiseaseName)
 );
 
-CREATE TABLE PatientDisease(
-	Pd_Patient NUMBER(16),
-	Pd_DiseaseName VARCHAR(200),
+CREATE TABLE Diagnosis (
+	Di_Patient NUMBER(16),
+	Di_DiseaseName VARCHAR(200),
 	CONSTRAINT HS_PK PRIMARY KEY(Pd_Patient, Pd_DiseaseName),
-	CONSTRAINT Pd_P FOREIGN KEY(Pd_Patient) REFERENCES Person(Per_Id),
-	CONSTRAINT Pd_D FOREIGN KEY(Pd_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
+	CONSTRAINT Di_P FOREIGN KEY(Pd_Patient) REFERENCES Person(Per_Id),
+	CONSTRAINT Di_D FOREIGN KEY(Pd_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
 	--another constraint where patient must be sick!--
 );
 
@@ -152,4 +152,3 @@ WHEN
     END IF;
 END;
 \
-
