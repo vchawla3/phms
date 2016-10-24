@@ -26,7 +26,7 @@
 - [ ] Retrieve Alerts for a user (and as a Health Supporter)
 - [ ] Retrieve Health Observations (thresholds) for a user (and as a Health
   Supporter)
-- [ ] Retrieve the user's diseases (And as a Health supporter
+- [x] Retrieve the user's diseases (And as a Health supporter
 - [ ] Remove/Delete a Health Supporter
 - [x] List the patients who are not ‘sick’.
 - [ ] How many patients have different observation time and recording time (of the observation).

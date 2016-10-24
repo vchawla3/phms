@@ -50,6 +50,14 @@ CREATE TABLE PatientDisease(
 	--another constraint where patient must be sick!--
 );
 
+--trigger to make a patient a 'sick' patient if they add a disease--
+CREATE OR REPLACE TRIGGER PD_PatMustBeSick
+AFTER INSERT ON PatientDisease
+FOR EACH ROW WHEN (:NEW.Pd_DiseaseName <> :OLD.Pd_DiseaseName)
+BEGIN
+	UPDATE PATIENTS SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Pd_Patient;
+END;
+
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
