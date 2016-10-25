@@ -26,7 +26,78 @@ public class PHMSDao {
 //        Statement stmt = null;
 //        ResultSet rs = null;
 	}
-	
+  	
+  	public ArrayList<HealthObservationType> getAllRecomendationsforPatient(Patient p){
+  		ArrayList<HealthObservationType> hos = new ArrayList<HealthObservationType>();
+  		Connection conn = null;
+  		PreparedStatement stmt = null;
+  		ResultSet rs = null;
+  		try{
+  			conn = openConnection();
+  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r"
+  						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
+  			stmt = conn.prepareStatement(SQL);
+  			stmt.setLong(1, p.getSsn());
+  			rs = stmt.executeQuery();
+  			while (rs.next()) {
+  				HealthObservationType pa = new HealthObservationType(rs);
+  				hos.add(pa);
+  			}
+  			return hos;
+  		} catch(SQLException e){  			
+  			e.printStackTrace();
+  			return null;
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+  	}
+  	
+  	public boolean addRecomendation(HealthObservationType ht, HealthSupporter h, Patient p) throws SQLException{
+  		Connection conn = null;
+  		PreparedStatement stmt = null;
+  		Statement st = null;
+  		ResultSet rs = null;
+  		try{
+  			conn = openConnection();
+  			String SQL = "INSERT INTO Health_Observation_Type (Hot_Name,Hot_Disease,Hot_UpperLimit,Hot_LowerLimit,Hot_Frequency) "
+  					+ "VALUES(?,?,?,?,?)";
+  			stmt = conn.prepareStatement(SQL);
+  			stmt.setString(1, ht.getName());
+  			stmt.setString(2, ht.getDisease());
+  			stmt.setLong(3, ht.getUpper());
+  			stmt.setLong(4, ht.getLower());
+  			stmt.setLong(5, ht.getFreq());
+  			stmt.executeUpdate();
+  			close(stmt);
+  			SQL = "SELECT MAX(Hot_Id) FROM Health_Observation_Type";
+  			stmt = conn.prepareStatement(SQL);
+  			rs = stmt.executeQuery(SQL);
+  			long id = 0;
+  			while (rs.next()) {
+  				id = rs.getLong("Hot_Id");
+  			}
+  			close(stmt);
+  			SQL = "INSERT INTO Recommendation VALUES(?,?,?)";
+  			stmt = conn.prepareStatement(SQL);
+  			stmt.setLong(1, h.getSsn());
+  			stmt.setLong(2, p.getSsn());
+  			stmt.setLong(3, id);
+  			stmt.executeUpdate();
+  			conn.commit();
+  			return true;
+  		} catch(SQLException e){  
+  			conn.rollback();
+  			e.printStackTrace();
+  			return false;
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+  	}
+  	
 	public ArrayList<HealthObservation> getHOTypesForPatient(Patient p){
 		ArrayList<HealthObservation> hos = new ArrayList<HealthObservation>();
 		Connection conn = null;
@@ -63,7 +134,7 @@ public class PHMSDao {
 		try{
 			conn = openConnection();
 			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h"
-					+ "WHERE a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
+					+ "WHERE a.AL_READ = 0 AND a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
 					+ "ORDER BY a.Al_Sent";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
@@ -110,6 +181,33 @@ public class PHMSDao {
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public ArrayList<Patient> getSupportedPatients(HealthSupporter h){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<Patient> ps = new ArrayList<Patient>();
+		try{
+			conn = openConnection();
+			String SQL = "SELECT * FROM PERSON p, Patient p, Health_Supporter h "
+					+ "WHERE p.Pat_Person = h.HS_Patient AND h.HS_Supporter = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, h.getSsn());
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Patient p = new Patient(rs);
+				ps.add(p);
+			}
+			return ps;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
 		} finally {
 			close(stmt);
             close(conn);
@@ -331,6 +429,44 @@ public class PHMSDao {
 		}
 	}
 	
+	public boolean editHSNoPatient(HealthSupporter p) throws SQLException{
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		
+		try{
+			conn = openConnection();
+			//Update the person table
+			String SQL = "UPDATE PERSON SET "
+					+ "Per_FirstName = ?,"
+					+ "Per_LastName = ?,"
+					+ "Per_DateOfBirth = ?," 
+					+ "Per_Address = ?,"
+					+ "Per_Phone = ?,"
+					+ "Per_Sex = ?,"
+					+ "Per_Password = ?"
+					+ "WHERE Per_Id = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, p.getFname());
+			stmt.setString(2, p.getLname());
+			stmt.setDate(3, p.getDOB());
+			stmt.setString(4, p.getAddress());
+			stmt.setString(5, p.getPhoneNum());
+			stmt.setString(6, p.getSex());
+			stmt.setString(6, p.getPassword());
+			stmt.setLong(7, p.getSsn());
+			stmt.executeUpdate();
+			conn.commit();	
+			return true;
+		} catch(SQLException e){
+			conn.rollback();
+			e.printStackTrace();
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public boolean editHS(Patient OGp, HealthSupporter p) throws SQLException{
 		Connection conn = null;
 		PreparedStatement stmt = null;
@@ -369,7 +505,8 @@ public class PHMSDao {
 			stmt.setDate(2, p.getDateUnauthorized());
 			stmt.setLong(3, p.getSsn());
 			stmt.setLong(4, OGp.getSsn());
-			stmt.executeUpdate();	
+			stmt.executeUpdate();
+			conn.commit();
 			return true;
 		} catch(SQLException e){
 			conn.rollback();
@@ -569,12 +706,19 @@ public class PHMSDao {
   			//stmt.executeUpdate("create table TEST1(val1 integer)");
   			//stmt.executeUpdate("insert into TEST values(3)");
   			//stmt.executeUpdate("insert into TEST values(4)");
-  			//rs = stmt.executeQuery("SELECT * FROM Diagnosis d, Patient ps WHERE d.Di_Patient=ps.Pat_Person");
-  			rs = stmt.executeQuery("SELECT * FROM Diagnosis");
+//  			rs = stmt.executeQuery("SELECT * FROM Diagnosis d, Patient ps WHERE d.Di_Patient=ps.Pat_Person");
+//  			rs = stmt.executeQuery("SELECT * FROM Diagnosis");
+//  			while (rs.next()) {
+//  			    String p = rs.getString("Di_DiseaseName");
+//  			    long s = rs.getLong("Di_Patient");
+//  			    System.out.println(s+":"+p);
+//  			}
+  			
+  			rs = stmt.executeQuery("SELECT * FROM Patient");
   			while (rs.next()) {
-  			    String p = rs.getString("Di_DiseaseName");
-  			    long s = rs.getLong("Di_Patient");
-  			    System.out.println(s+":"+p);
+  				long i  = rs.getLong("Pat_Person");
+  			    //long i = rs.getLong("HS_Supporter");
+  			    System.out.println(i);
   			}
   			return true;
   		} catch(SQLException e){
@@ -582,7 +726,119 @@ public class PHMSDao {
   			return false;
   		} finally {
   			close(stmt);
-              close(conn);
+            close(conn);
   		}
   	}
+
+  	
+  	
+  	//IMPLEMENTED QUERIES - SEPERATE FROM APPLICATION
+	public void patientsWithMoreThanOneDiagnosis() {
+		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		ArrayList<Patient> p = new ArrayList<Patient>();
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND"
+  								+ "2 = (SELECT COUNT(*) FROM Diagnosis pd WHERE pd.Di_Patient = pa.Pat_Person)");
+  			while (rs.next()) {
+  				Patient pa = new Patient(rs);
+  				p.add(pa);
+  			}
+  			
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+  		int size = p.size();
+  		for(int i = 0; i < size; i++){
+  			Patient pa = p.get(i);
+  			System.out.println(pa.getFname() + " " + pa.getLname());
+  		}
+	}
+
+	public void sickPatientsWithHSAlsoSick() {
+		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		ArrayList<Patient> p = new ArrayList<Patient>();
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND"
+  								+ "EXISTS(SELECT * FROM Health_Supporter h, PATIENT pa2 WHERE"
+  								+ "h.HS_Patient = pa.Pat_Person AND"
+  								+ "h.HS_Supporter = pa2.Pat_Person AND"
+  								+ "pa2.Pat_Sick = 1)");
+  			while (rs.next()) {
+  				Patient pa = new Patient(rs);
+  				p.add(pa);
+  			}
+  			
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+  		int size = p.size();
+  		for(int i = 0; i < size; i++){
+  			Patient pa = p.get(i);
+  			System.out.println(pa.getFname() + " " + pa.getLname());
+  		}
+		
+	}
+
+	public void patientsWithTwoHS() {
+		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		ArrayList<Patient> p = new ArrayList<Patient>();
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND"
+  								+ "2 = (SELECT COUNT(*) FROM Health_Supporter h WHERE"
+  								+ "h.HS_Patient = pa.Pat_Person)");
+  			while (rs.next()) {
+  				Patient pa = new Patient(rs);
+  				p.add(pa);
+  			}
+  			
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+  		int size = p.size();
+  		for(int i = 0; i < size; i++){
+  			Patient pa = p.get(i);
+  			System.out.println(pa.getFname() + " " + pa.getLname());
+  		}
+		
+	}
+
+	public void alertsEachMonthEachPatient() {
+		// TODO Auto-generated method stub
+		
+	}
+
+	public void mostAlertsPerMonth() {
+		// TODO Auto-generated method stub
+		
+	}
 }

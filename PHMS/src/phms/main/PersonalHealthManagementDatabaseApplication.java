@@ -18,7 +18,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		System.out.println(dao.test());
+		//System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -95,13 +95,41 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println();
 		System.out.println("Report Queries");
 		System.out.println("----------");
-		System.out.println("1. Health Supps Auth in Sept 2016 by patients w/ Heart Disease");
-		System.out.println("2. Num patients not complying w/ recomended freq of observations");
-		System.out.println("3. List Health Supporters who are also patients");
-		System.out.println("4. List Patients who are not sick");
-		System.out.println("5. How many patients have different observation time and recording time (of the observation).");
+		System.out.println("1. Find patients who belong to more than one Sick Patient class");
+		System.out.println("2. Find all Sick patients whose Health Supporters are also Sick patients");
+		System.out.println("3. Find patients who have two Health Supporters");
+		System.out.println("4. For each patient and each month of 2015, list all the alerts that were generated");
+		System.out.println("5. For each month of 2015, list the patients with the most alerts.");
 		System.out.println("----------");
 		System.out.println();
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			input = 0;
+		}
+		switch(input){
+			case 0:
+				System.out.println("Invalid input, back to Start Menu");
+				break;
+			case 1:
+				dao.patientsWithMoreThanOneDiagnosis();
+				break;
+			case 2:
+				dao.sickPatientsWithHSAlsoSick();
+				break;
+			case 3:
+				dao.patientsWithTwoHS();
+				break;
+			case 4:
+				dao.alertsEachMonthEachPatient();
+				break;
+			case 5:
+				dao.mostAlertsPerMonth();
+				break;
+		}
+		System.out.println("----------");
+		startMenu();
 	}
 
 	private static void signUp() {
@@ -173,13 +201,13 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("2. Diagnoses");
 		System.out.println("3. Health Indicator");
 		System.out.println("4. Alerts");
-		System.out.println("5. Health Supporters");
+		System.out.println("5. Recomendations");
 		System.out.println("6. Logout");
 		System.out.println("---------------------");
 		System.out.println();
 	}
 	
-	private static void hsMenu(HealthSupporter p){
+	private static void hsMenu(HealthSupporter h){
 		hsUI();
 		boolean invalid;
 		do{
@@ -192,19 +220,19 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 			switch (input){
 				case 1:
-
+					profile(h);
 					break;
 				case 2:
-
+					diagnoses(h);
 					break;
 				case 3:
-
+					healthInd(h);
 					break;
 				case 4:
-
+					alerts(h);
 					break;
 				case 5:
-
+					recs(h);
 					break;
 				case 6:
 					startMenu();
@@ -217,6 +245,200 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 		} while(!invalid);
 		
+	}
+	
+	private static void recs(HealthSupporter h){
+		System.out.println("View/Add your patients Recommendations");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewRecs(h,p);
+	}
+	
+	private static void viewRecs(HealthSupporter h, Patient p){
+		
+	}
+	private static void alerts(HealthSupporter h){
+		System.out.println("View/Edit your patients Alerts");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewAlerts(h,p);
+	}
+	
+	private static void healthInd(HealthSupporter h){
+		System.out.println("View your patients Health Indicators");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewHOs(h,p);
+	}
+	
+	private static void diagnoses(HealthSupporter h){
+		System.out.println("View your patients Diagnoses");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		diseaseMenu(h,p);
+	}
+	
+	private static void profile(HealthSupporter h){
+		System.out.println("1. View your profile");
+		System.out.println("2. View profile of a patient you support");
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			input = 0;
+		}
+		switch(input){
+			case 0:
+				System.out.println("Invalid input, back to Health Supporter Menu");
+				hsMenu(h);
+				break;
+			case 1:
+				hsProfile(h);
+				break;
+			case 2:
+				Patient p = selectPatient(h);
+				showProfile(h,p);
+				break;
+		}
+	}
+	
+	private static Patient selectPatient(HealthSupporter h){
+		ArrayList<Patient> supports = dao.getSupportedPatients(h);
+		int size = supports.size();
+		System.out.println("Select A Patient You Support");
+		System.out.println("---------------------");
+		for (int i = 0; i < size; i++) {
+			Patient p = supports.get(i);
+			System.out.println((i+1) + ": " + p.getFname() + " " + p.getLname());
+		}
+		System.out.println("---------------------");
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= size){
+			System.out.println("Invalid seletion, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+		return supports.get(selection);
+	}
+	
+	private static void hsProfile(HealthSupporter p){
+		System.out.println(p.getFname() + " " + p.getLname() + "'s Profile Info");
+		System.out.println("---------------------");
+		System.out.println("SSN: " + p.getSsn());
+		System.out.println("Name: " + p.getFname() + " " + p.getLname());
+		java.sql.Date DOB = p.getDOB();
+		System.out.println("DOB: " + DOB.toString());
+		System.out.println("Address: " + p.getAddress());
+		System.out.println("Phone: " + p.getPhoneNum());
+		System.out.println("Sex: " + p.getSex());
+		
+		System.out.println();
+		System.out.println("Edit Info? (Y/N)");
+		String input = console.nextLine();
+		if (input.equalsIgnoreCase("y")){
+			editHSInfo(p);
+		} else if (input.equalsIgnoreCase("n")){
+			hsMenu(p);
+		} else {
+			System.out.println("Invalid Input, back to Health Supporter Menu");
+			hsMenu(p);
+		}
+	}
+	
+	private static void editHSInfoUI(){
+		System.out.println("Edit Health Supporter");
+		System.out.println("---------------------");
+		System.out.println("1. Set First Name");
+		System.out.println("2. Set Last Name");
+		System.out.println("3. Set Date Of Birth");
+		System.out.println("4. Set Address");
+		System.out.println("5. Set Phone Number");
+		System.out.println("6. Set Sex");
+		System.out.println("7. Set Password");
+		System.out.println("8. Save Changes");
+		System.out.println("9. Exit/Leave Changes");
+		System.out.println("---------------------");
+		System.out.println();
+	}
+	
+	private static void editHSInfo(HealthSupporter p){
+		//edit patient info
+		boolean stay;
+		HealthSupporter newP = p;
+		do{
+			editHSInfoUI();
+			stay = true;
+			int input;
+			try{
+				input = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				input = 0;
+			}
+			switch (input){
+				case 1:
+					System.out.println("Enter new First Name");
+					String fname = console.nextLine();
+					newP.setFname(fname);
+					break;
+				case 2:
+					System.out.println("Enter new Last Name");
+					String lname = console.nextLine();
+					newP.setLname(lname);
+					break;
+				case 3:
+					System.out.println("Enter DOB Month (1-12): ");
+					int month = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Day: ");
+					int day = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Year: ");
+					int year = Integer.parseInt(console.nextLine());
+					
+					String date = year + "-" + month + "-" + day;
+					java.sql.Date dat = java.sql.Date.valueOf(date);
+					newP.setDOB(dat);
+					break;
+				case 4:
+					System.out.println("Enter new Address");
+					String address = console.nextLine();
+					newP.setAddress(address);
+					break;
+				case 5:
+					System.out.println("Enter new Phone Num");
+					String phone = console.nextLine();
+					newP.setPhoneNum(phone);
+					break;
+				case 6:
+					System.out.println("Enter new Sex (m/f)");
+					String sex = console.nextLine();
+					newP.setSex(sex);
+					break;
+				case 7:
+					System.out.println("Enter new Password");
+					String password = console.nextLine();
+					newP.setPassword(password);
+					break;
+				case 8:
+					try {
+						dao.editHSNoPatient(newP);
+						System.out.println("Patient Updated!");
+					} catch (SQLException e) {
+						// TODO Auto-generated catch block						
+						e.printStackTrace();
+						System.out.println("Error! Patient Not Updated!");
+					}
+					stay = false;
+					hsMenu(newP);
+					break;
+				case 9:
+					stay = false;
+					System.out.println("Patient Not Updated!");
+					hsMenu(p);
+					break;
+				case 0:
+					System.out.println("Invalid input, try again!!!!!");
+					break;
+			}
+		} while(stay);
 	}
 
 	private static void patientUI(){
@@ -245,16 +467,16 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 			switch (input){
 				case 1:
-					showProfile(p);
+					showProfile(null,p);
 					break;
 				case 2:
-					diseaseMenu(p);
+					diseaseMenu(null,p);
 					break;
 				case 3:
-					viewHOs(p);
+					viewHOs(null,p);
 					break;
 				case 4:
-					viewAlerts(p);
+					viewAlerts(null,p);
 					break;
 				case 5:
 					patientViewsHS(p);
@@ -271,7 +493,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		} while(!invalid);
 		
 	}
-	private static void viewAlerts(Patient p){
+	private static void viewAlerts(HealthSupporter h, Patient p){
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Alerts");
 		ArrayList<Alert> alerts = dao.getPatientAlerts(p);
 		int size = alerts.size();
@@ -280,9 +502,18 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
 			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
+		
+		
+		
+		
+		if(h==null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
 	}
 	
-	private static void viewHOs(Patient p){
+	private static void viewHOs(HealthSupporter h, Patient p){
 		//List the HOTypes and the corresponding thresholds/freq for this patient
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
 		System.out.println("---------------------");
@@ -297,6 +528,12 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 		System.out.println("---------------------");
 		System.out.println("Would you like to add a Health Observation (Y/N)?");
+		
+		if(h == null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
 	}
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
@@ -399,7 +636,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("---------------------");
 	}
 	
-	private static void diseaseMenu(Patient p){
+	private static void diseaseMenu(HealthSupporter h, Patient p){
 		boolean keep = true;
 		while(keep){
 			System.out.println("Make a selection");
@@ -407,7 +644,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println("1. View Diseases");
 			System.out.println("2. Add Disease");
 			System.out.println("3. Remove Disease");
-			System.out.println("4. Back To Patient Menu");
+			System.out.println("4. Back To Menu");
 		
 			int input;
 			try{
@@ -417,7 +654,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 			switch(input){
 				case 0:
-					System.out.println("Invalid input, back to Patient Menu!!!!!");
+					System.out.println("Invalid input, back to Menu!!!!!");
 					keep = false;
 					break;
 				case 1:
@@ -434,7 +671,12 @@ public class PersonalHealthManagementDatabaseApplication {
 					break;
 			}
 		}
-		patientMenu(p);
+		if(h == null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
+		
 		
 	}
 	private static void addDisease(Patient p){
@@ -507,7 +749,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 	}
 	
-	private static void showProfile(Patient p){
+	private static void showProfile(HealthSupporter h, Patient p){
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Profile Info");
 		System.out.println("---------------------");
 		System.out.println("SSN: " + p.getSsn());
@@ -517,17 +759,30 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("Address: " + p.getAddress());
 		System.out.println("Phone: " + p.getPhoneNum());
 		System.out.println("Sex: " + p.getSex());
-		
+		int sick = p.isSick();
+		if (sick == 1){
+			System.out.println("Sick? yes");
+		} else {
+			System.out.println("Sick? no");
+		}
 		System.out.println();
 		System.out.println("Edit Info? (Y/N)");
 		String input = console.nextLine();
 		if (input.equalsIgnoreCase("y")){
-			editPatientInfo(p);
+			editPatientInfo(null,p);
 		} else if (input.equalsIgnoreCase("n")){
-			patientMenu(p);
+			if (h == null){
+				patientMenu(p);
+			} else {
+				hsMenu(h);
+			}
 		} else {
-			System.out.println("Invalid Input, back to Patient Menu");
-			patientMenu(p);
+			System.out.println("Invalid Input, back to Menu");
+			if (h == null){
+				patientMenu(p);
+			} else {
+				hsMenu(h);
+			}
 		}
 	}
 	
@@ -548,7 +803,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println();
 	}
 	
-	private static void editPatientInfo(Patient p){
+	private static void editPatientInfo(HealthSupporter h, Patient p){
 		//edit patient info
 		boolean stay;
 		Patient newP = p;
@@ -622,12 +877,21 @@ public class PersonalHealthManagementDatabaseApplication {
 					dao.editPatient(newP);
 					stay = false;
 					System.out.println("Patient Updated!");
-					patientMenu(newP);
+					if (h == null){
+						patientMenu(newP);
+					} else {
+						hsMenu(h);
+					}
+					
 					break;
 				case 10:
 					stay = false;
 					System.out.println("Patient Not Updated!");
-					patientMenu(p);
+					if (h == null){
+						patientMenu(newP);
+					} else {
+						hsMenu(h);
+					}
 					break;
 				case 0:
 					System.out.println("Invalid input, try again!!!!!");
