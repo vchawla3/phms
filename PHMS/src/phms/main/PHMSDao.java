@@ -182,11 +182,12 @@ public class PHMSDao {
 					+ "AND P.Per_Password = ?";
 					
 			stmt = conn.prepareStatement(SQL);
-			stmt.setLong(1, user);
-			stmt.setLong(2, user);
+			stmt.setInt(1, 1);
+			stmt.setInt(2, 1);
 			stmt.setString(3, pass);
-			rs = stmt.executeQuery(SQL);
-			p = new Patient(rs);	
+			rs = stmt.executeQuery();
+//			Must set each variable of Patient by getting each field value
+//			p = new Patient(rs);	
 			return p;
 		} catch(SQLException e){
 			e.printStackTrace();
