@@ -14,19 +14,7 @@ CREATE TABLE PATIENT(
     Pat_Person NUMBER(16),
     Pat_Sick NUMBER(1),
     CONSTRAINT PATIENT_PK PRIMARY KEY (Pat_Person),
-    CONSTRAINT PATIENT_FK FOREIGN KEY (Pat_Person) REFERENCES Person(Per_Id),
-    CONSTRAINT HS_Constraints 
-        CHECK(SELECT 
-                COUNT(*)
-              from Health_Supporter 
-              where Health_Supporter.HS_Patient = Pat_Person) <= 2)
-    CONSTRAINT HS_SickPatient
-        CHECK(
-            (SELECT 
-                COUNT(*)
-             from Health_Supporter 
-             where Pat_Sick=1 AND Health_Supporter.HS_Patient = Pat_Person) BETWEEN 1 AND 2 
-        )
+    CONSTRAINT PATIENT_FK FOREIGN KEY (Pat_Person) REFERENCES Person(Per_Id)
 );
 CREATE TABLE Health_Supporter(
     HS_Supporter NUMBER(16),
@@ -41,26 +29,19 @@ CREATE TABLE Disease(
     Dis_DiseaseName VARCHAR(200),
     CONSTRAINT DISEASE_PK PRIMARY KEY(Dis_DiseaseName)
 );
-
 CREATE TABLE Diagnosis (
 	Di_Patient NUMBER(16),
 	Di_DiseaseName VARCHAR(200),
 	CONSTRAINT Di_PK PRIMARY KEY(Di_Patient, Di_DiseaseName),
 	CONSTRAINT Di_P FOREIGN KEY(Di_Patient) REFERENCES Person(Per_Id),
 	CONSTRAINT Di_D FOREIGN KEY(Di_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
-	--another constraint where patient must be sick!--
 );
-
-
-
---trigger to make a patient a 'sick' patient if they add a disease--
 CREATE OR REPLACE TRIGGER Di_PatMustBeSick
 AFTER INSERT ON Diagnosis
 FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
 BEGIN
 	UPDATE PATIENT SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
 END;
-
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
@@ -81,7 +62,6 @@ BEGIN
   FROM   dual;
 END;
 /
--- TODO: What's Santa's favorite table?
 CREATE TABLE Health_Observation(
     Ho_Patient NUMBER(16),
     Ho_ObservationType Number(16),

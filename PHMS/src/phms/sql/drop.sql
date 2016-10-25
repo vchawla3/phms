@@ -1,3 +1,11 @@
+delete from Health_Observation;
+delete from Health_Observation_Type;
+delete from health_Supporter;
+delete from diagnosis;
+delete From Patient;
+delete from disease;
+delete from person;
+
 -- first drop data tables
 drop table alert;
 drop table recommendation;
@@ -6,6 +14,7 @@ drop trigger healthobs_ai;
 drop table health_observation;
 -- then drop lookup tables
 drop table health_observation_type;
+drop trigger Di_PatMustBeSick;
 drop table diagnosis;
 drop table disease;
 -- then drop user tables
