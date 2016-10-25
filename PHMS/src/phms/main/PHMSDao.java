@@ -27,6 +27,67 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
+	public ArrayList<Alert> getPatientAlerts(Patient p){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<Alert> as = new ArrayList<Alert>();
+		try{
+			conn = openConnection();
+			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h"
+					+ "WHERE a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
+					+ "ORDER BY a.Al_Sent";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, p.getSsn());
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				Alert a = new Alert(rs);
+				as.add(a);
+			}
+			return as;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public boolean clearAlert(Alert a) throws SQLException{
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		ArrayList<Alert> as = new ArrayList<Alert>();
+		try{
+			conn = openConnection();
+			String SQL = "UPDATE Alert a SET"
+						+ "a.Al_Read = 1"
+						+ "WHERE"
+						+ "a.Al_HS_Supporter = ?,"
+						+ "a.Al_HS_Patient = ?,"
+						+ "a.Al_OBS_Patient = ?,"
+						+ "a.Al_OBS_Type = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, a.getHSId());
+			stmt.setLong(2, a.getPatientId());
+			stmt.setLong(3, a.getPatientId());
+			stmt.setLong(4, a.getHOTypeID());
+			stmt.executeUpdate();
+			conn.commit();
+			return true;
+		} catch(SQLException e){
+			conn.rollback();
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public ArrayList<HealthSupporter> getPatientsHS(Patient p){
 		Connection conn = null;
 		PreparedStatement stmt = null;

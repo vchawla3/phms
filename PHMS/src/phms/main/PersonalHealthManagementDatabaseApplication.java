@@ -254,7 +254,7 @@ public class PersonalHealthManagementDatabaseApplication {
 					viewHOs(p);
 					break;
 				case 4:
-
+					viewAlerts(p);
 					break;
 				case 5:
 					patientViewsHS(p);
@@ -270,6 +270,16 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 		} while(!invalid);
 		
+	}
+	private static void viewAlerts(Patient p){
+		System.out.println(p.getFname() + " " + p.getLname() + "'s Alerts");
+		ArrayList<Alert> alerts = dao.getPatientAlerts(p);
+		int size = alerts.size();
+		for(int i = 0; i < size; i++){
+			Alert a = alerts.get(i);
+			System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
+			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		}
 	}
 	private static void viewHOs(Patient p){
 		
@@ -344,7 +354,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		editHSInfo(p, h);
 	}
 	private static void addHS(Patient p){
-		System.out.println("Select a Health Supporters to Add");
+		System.out.println("Select a Health Supporter to Add");
 		System.out.println("---------------------");
 	}
 	
@@ -729,27 +739,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		String pass = console.nextLine();
 		System.out.println();
 		Patient p;
-		p = loginAction(user,pass);
+		p = dao.patientLogin(user,pass);
 		return p;
-//		do{
-//			p = loginAction(user,pass);
-//			if (p == null) {
-//				System.out.println("Login Incorrect");
-//				System.out.println("Enter UID");
-//				user = console.nextLine();
-//
-//				System.out.println("Enter Password");
-//				pass = console.nextLine();
-//			}
-//		}while(p == null);
-//		return p;
 	}
-
-	private static Patient loginAction(long user, String pass){
-		return dao.patientLogin(user,pass);
-	}
-
-
-
-
 }
