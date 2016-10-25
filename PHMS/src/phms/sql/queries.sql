@@ -164,7 +164,22 @@ WHERE
                        FROM Diagnosis d
                        WHERE d.Di_Patient = 1));
     
+--GET HOTypes where disease is NOT in patients diseases AND HO NAME not in patients recommendation basically THESE ARE GENERIC--
+(SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency 
+FROM Health_Observation_Type h
+WHERE h.Hot_Disease NOT IN(SELECT Di_DiseaseName FROM Diagnosis d
+WHERE d.Di_Patient = ?) AND h.Hot_Name NOT IN(
+SELECT ho.Hot_Name FROM Recommendation r, Health_Observation_Type h where r.r.Rec_OBS_Type = ho.Hot_Id AND r.Rec_HS_Patient = ?))
+UNION
+(SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
+FROM Health_Observation_Type h1
+WHERE)
 
+--Union w/ HOTypes that are patients disease BUT not in reccommends so these freq/thresh supercede--
+(SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
+FROM Health_Observation_Type h1
+WHERE h1.Hot_Id NOT IN(SELECT r.r.Rec_OBS_Type FROM Recommendation r) AND h1.Hot_Disease IN (SELECT Di_DiseaseName FROM Diagnosis d
+WHERE d.Di_Patient = ?))
 
 SELECT * from
 	(SELECT * from Health_Observation_Type WHERE NOT EXISTS ())
@@ -178,3 +193,28 @@ SELECT * from
 --     (select * from recommendations where Rec_HS_Patient = 1),
 --     (select * the set of health observations where health_observation_disease IN
 --         (select the set of disease the user has))
+
+-- For each patient and each month of 2015, list allerts generated
+select 
+    al_hs_supporter,
+    al_hs_patient,
+    extract(year from al_sent) as year,
+    extract(month from al_sent) as month
+from
+    alert
+where 
+    extract(year from al_sent) = 2015
+order by al_hs_patient, month;
+
+--IN PROGRESS: For each month of 2015, list the patients with the most alerts
+select AL_HS_Patient, Month, NumAlerts
+from
+    (select
+        count(AL_HS_Patient) as NumAlerts,
+        extract(month from al_sent) as Month,
+        AL_HS_Patient
+    from
+        Alert
+    group by extract(month from al_sent), AL_HS_Patient)
+Group By Month, AL_HS_Patient
+Having NumAlerts = Max(NumAlerts);
