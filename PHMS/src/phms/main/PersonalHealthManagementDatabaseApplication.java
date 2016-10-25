@@ -365,8 +365,12 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		selection--;
 		HealthSupporter h = hs.get(selection);
-		if (dao.removeHSForPatient(p.getSsn(), h)){
-			System.out.println("Success, HS removed!");
+		try {
+			if (dao.removeHSForPatient(p.getSsn(), h)){
+				System.out.println("Success, HS removed!");
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		};
 		System.out.println("---------------------");
 	}
@@ -425,8 +429,12 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		selection--;
 		String dis = allDiseases.get(selection);
-		if(dao.addDiseaseForPatient(p.getSsn(), dis)){
-			p.setSick(1);
+		try {
+			if(dao.addDiseaseForPatient(p.getSsn(), dis)){
+				p.setSick(1);
+			}
+		} catch (SQLException e) {
+			e.printStackTrace();
 		}
 	}
 
@@ -446,7 +454,11 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		selection--;
 		String dis = patientsDiseases.get(selection);
-		dao.removeDiseaseForPatient(p.getSsn(),dis);
+		try {
+			dao.removeDiseaseForPatient(p.getSsn(),dis);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
 		System.out.println("---------------------");
 	}
 	
@@ -668,7 +680,11 @@ public class PersonalHealthManagementDatabaseApplication {
 					newP.setDateUnauthorized(dat1);
 					break;
 				case 6:
+				try {
 					dao.editHS(OGp, newP);
+				} catch (SQLException e) {
+					e.printStackTrace();
+				}
 					stay = false;
 					System.out.println("Health Supporter Updated!");
 					//patientMenu(OGp);

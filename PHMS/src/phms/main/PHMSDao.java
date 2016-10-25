@@ -54,7 +54,7 @@ public class PHMSDao {
 		}
 	}
 	
-	public boolean removeHSForPatient(long ssn, HealthSupporter h) {
+	public boolean removeHSForPatient(long ssn, HealthSupporter h) throws SQLException {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		try{
@@ -64,8 +64,10 @@ public class PHMSDao {
 			stmt.setLong(1, h.getSsn());
 			stmt.setLong(2, ssn);
 			stmt.executeUpdate();
+			conn.commit();
 			return true;
 		} catch(SQLException e){
+			conn.rollback();
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			return false;
@@ -76,7 +78,7 @@ public class PHMSDao {
 		
 	}
 	
-	public boolean removeDiseaseForPatient(long ssn, String dis) {
+	public boolean removeDiseaseForPatient(long ssn, String dis) throws SQLException {
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		try{
@@ -86,8 +88,10 @@ public class PHMSDao {
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
 			stmt.executeUpdate();
+			conn.commit();
 			return true;
 		} catch(SQLException e){
+			conn.rollback();
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			return false;
@@ -98,7 +102,7 @@ public class PHMSDao {
 		
 	}
 	
-	public boolean addDiseaseForPatient(long ssn, String dis){
+	public boolean addDiseaseForPatient(long ssn, String dis) throws SQLException{
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		try{
@@ -108,8 +112,10 @@ public class PHMSDao {
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
 			stmt.executeUpdate();
+			conn.commit();
 			return true;
 		} catch(SQLException e){
+			conn.rollback();
 			e.printStackTrace();
 			System.out.println(e.getMessage());
 			return false;
@@ -236,7 +242,7 @@ public class PHMSDao {
 		}
 	}
 	
-	public boolean editHS(Patient OGp, HealthSupporter p){
+	public boolean editHS(Patient OGp, HealthSupporter p) throws SQLException{
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		
@@ -262,6 +268,7 @@ public class PHMSDao {
 			stmt.setString(6, p.getPassword());
 			stmt.setLong(7, p.getSsn());
 			stmt.executeUpdate();
+			conn.commit();
 			close(stmt);
 			
 			//update the HS table
@@ -276,6 +283,7 @@ public class PHMSDao {
 			stmt.executeUpdate();	
 			return true;
 		} catch(SQLException e){
+			conn.rollback();
 			e.printStackTrace();
 			return false;
 		} finally {
