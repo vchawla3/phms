@@ -12,21 +12,21 @@ WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1
 	AND EXISTS(SELECT * FROM Health_Supporter h, PATIENT pa2
 				WHERE h.HS_Patient = pa.Pat_Person AND h.HS_Supporter = pa2.Pat_Person AND pa2.Pat_Sick = 1);
 				
---Find patients who belong to more than one sick patient class-- 
+--Find patients who belong to more than one sick patient class--  [Tested by Zach]
 SELECT * FROM Person p, PATIENT pa
 WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND 2 = (SELECT COUNT(*) FROM Diagnosis pd WHERE pd.Di_Patient = pa.Pat_Person);
 
---List the patients who are not ‘sick’--
+--List the patients who are not ‘sick’-- [Tested by Zach]
 SELECT * FROM Person p, PATIENT pa
 WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 0;
 
---List the health supporters who themselves are patients.--
+--List the health supporters who themselves are patients.-- [Tested by Zach]
 SELECT * FROM Person p, Health_Supporter h
 WHERE p.Per_Id = h.HS_Supporter AND 1 = (SELECT COUNT(*) FROM PATIENT pa WHERE pa.Pat_Person = h.HS_Supporter);
 
---Retrieve the user's diseases--
-SELECT Pd_DiseaseName FROM PATIENT ps, PatientDisease pd
-WHERE pd.Pd_Patient = pa.Pat_Person;
+--Retrieve the user's diseases-- [Tested by Zach]
+SELECT Di_DiseaseName FROM Patient ps, Diagnosis pd
+WHERE pd.Di_Patient = ps.Pat_Person;
 
 --Retrieve the user's diseases As HS (w/ HS ssn passed in)--
 SELECT pd.Pd_Patient, pd.Pd_DiseaseName FROM PatientDisease pd
