@@ -277,6 +277,7 @@ public class PersonalHealthManagementDatabaseApplication {
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
 		while(keep){
+			System.out.println(p.getFname() + " " + p.getLname() + "'s Health Supporter Menu!");
 			System.out.println("---------------------");
 			System.out.println("1. View Health Supporters");
 			System.out.println("2. Edit Health Supporters ");
@@ -332,6 +333,15 @@ public class PersonalHealthManagementDatabaseApplication {
 			HealthSupporter h = hs.get(i);
 			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
+		
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= hs.size()){
+			System.out.println("Invalid seletion, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+		HealthSupporter h = hs.get(selection);
+		editHSInfo(p, h);
 	}
 	private static void addHS(Patient p){
 		System.out.println("Select a Health Supporters to Add");
@@ -582,6 +592,91 @@ public class PersonalHealthManagementDatabaseApplication {
 					stay = false;
 					System.out.println("Patient Not Updated!");
 					patientMenu(p);
+					break;
+				case 0:
+					System.out.println("Invalid input, try again!!!!!");
+					break;
+			}
+		} while(stay);
+	}
+	
+	private static void editHSUI(){
+		System.out.println("Edit Health Supporter");
+		System.out.println("---------------------");
+		System.out.println("1. Set First Name");
+		System.out.println("2. Set Last Name");
+		System.out.println("3. Set Phone Number");
+		System.out.println("4. Set Auth Date");
+		System.out.println("5. Set Unauth Date");
+		System.out.println("6. Save Changes");
+		System.out.println("7. Exit/Leave Changes");
+		System.out.println("---------------------");
+		System.out.println();
+	}
+	
+	private static void editHSInfo(Patient OGp, HealthSupporter p){
+		//edit HS info
+		boolean stay;
+		HealthSupporter newP = p;
+		do{
+			editHSUI();
+			stay = true;
+			int input;
+			try{
+				input = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				input = 0;
+			}
+			switch (input){
+				case 1:
+					System.out.println("Enter new First Name");
+					String fname = console.nextLine();
+					newP.setFname(fname);
+					break;
+				case 2:
+					System.out.println("Enter new Last Name");
+					String lname = console.nextLine();
+					newP.setLname(lname);
+					break;
+				case 3:
+					System.out.println("Enter new Phone Num");
+					String phone = console.nextLine();
+					newP.setPhoneNum(phone);
+					break;
+				case 4:
+					System.out.println("Enter DOB Month (1-12): ");
+					int month = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Day: ");
+					int day = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Year: ");
+					int year = Integer.parseInt(console.nextLine());
+					
+					String date = year + "-" + month + "-" + day;
+					java.sql.Date dat = java.sql.Date.valueOf(date);
+					newP.setDateAuthorized(dat);
+					break;
+				case 5:
+					System.out.println("Enter DOB Month (1-12): ");
+					int month1 = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Day: ");
+					int day1 = Integer.parseInt(console.nextLine());
+					System.out.println("Enter DOB Year: ");
+					int year1 = Integer.parseInt(console.nextLine());
+					
+					String date1 = year1 + "-" + month1 + "-" + day1;
+					java.sql.Date dat1 = java.sql.Date.valueOf(date1);
+					newP.setDateUnauthorized(dat1);
+					break;
+				case 6:
+					dao.editHS(OGp, newP);
+					stay = false;
+					System.out.println("Health Supporter Updated!");
+					//patientMenu(OGp);
+					break;
+				case 7:
+					stay = false;
+					System.out.println("Health Supporter Not Updated!");
+					//patientMenu(OGp);
 					break;
 				case 0:
 					System.out.println("Invalid input, try again!!!!!");

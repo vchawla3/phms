@@ -63,7 +63,7 @@ public class PHMSDao {
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, h.getSsn());
 			stmt.setLong(2, ssn);
-			stmt.executeUpdate(SQL);
+			stmt.executeUpdate();
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
@@ -85,7 +85,7 @@ public class PHMSDao {
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
-			stmt.executeUpdate(SQL);
+			stmt.executeUpdate();
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
@@ -107,7 +107,7 @@ public class PHMSDao {
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
-			stmt.executeUpdate(SQL);
+			stmt.executeUpdate();
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
@@ -236,6 +236,54 @@ public class PHMSDao {
 		}
 	}
 	
+	public boolean editHS(Patient OGp, HealthSupporter p){
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		
+		try{
+			conn = openConnection();
+			//Update the person table
+			String SQL = "UPDATE PERSON SET "
+					+ "Per_FirstName = ?,"
+					+ "Per_LastName = ?,"
+					+ "Per_DateOfBirth = ?," 
+					+ "Per_Address = ?,"
+					+ "Per_Phone = ?,"
+					+ "Per_Sex = ?,"
+					+ "Per_Password = ?"
+					+ "WHERE Per_Id = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, p.getFname());
+			stmt.setString(2, p.getLname());
+			stmt.setDate(3, p.getDOB());
+			stmt.setString(4, p.getAddress());
+			stmt.setString(5, p.getPhoneNum());
+			stmt.setString(6, p.getSex());
+			stmt.setString(6, p.getPassword());
+			stmt.setLong(7, p.getSsn());
+			stmt.executeUpdate();
+			close(stmt);
+			
+			//update the HS table
+			SQL =  "UPDATE Health_Supporter SET "
+				+ "HS_DateAuthorized = ? AND HS_DateUnauthorized = ?"
+				+ "WHERE HS_Supporter = ? AND HS_Patient = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setDate(1, p.getDateAuthorized());
+			stmt.setDate(2, p.getDateUnauthorized());
+			stmt.setLong(3, p.getSsn());
+			stmt.setLong(4, OGp.getSsn());
+			stmt.executeUpdate();	
+			return true;
+		} catch(SQLException e){
+			e.printStackTrace();
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public boolean editPatient(Patient p){
 		Connection conn = null;
 		PreparedStatement stmt = null;
@@ -261,7 +309,7 @@ public class PHMSDao {
 			stmt.setString(6, p.getSex());
 			stmt.setString(6, p.getPassword());
 			stmt.setLong(7, p.getSsn());
-			stmt.executeUpdate(SQL);
+			stmt.executeUpdate();
 			close(stmt);
 			
 			//update the patient table
@@ -271,7 +319,7 @@ public class PHMSDao {
 			stmt = conn.prepareStatement(SQL);
 			stmt.setInt(1, p.isSick());
 			stmt.setLong(2, p.getSsn());
-			stmt.executeUpdate(SQL);	
+			stmt.executeUpdate();	
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
@@ -305,7 +353,7 @@ public class PHMSDao {
 			stmt = conn.prepareStatement(SQL);
 			stmt.setFloat(1,  p.getSsn());
 			stmt.setFloat(2, p.isSick());
-			stmt.executeUpdate(SQL);	
+			stmt.executeUpdate();	
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
