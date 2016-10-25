@@ -207,14 +207,12 @@ where
 order by al_hs_patient, month;
 
 --IN PROGRESS: For each month of 2015, list the patients with the most alerts
-select AL_HS_Patient, Month, NumAlerts
+select
+    AL_HS_Patient,
+    extract(month from al_sent) as Month
 from
-    (select
-        count(AL_HS_Patient) as NumAlerts,
-        extract(month from al_sent) as Month,
-        AL_HS_Patient
-    from
-        Alert
-    group by extract(month from al_sent), AL_HS_Patient)
-Group By Month, AL_HS_Patient
-Having NumAlerts = Max(NumAlerts);
+    Alert
+group by extract(month from al_sent), AL_HS_Patient
+having count(Distinct AL_HS_Patient) = (select max( count( Distinct AL_HS_Patient) )
+                                   from Alert
+                                   group by extract(month from AL_sent) );
