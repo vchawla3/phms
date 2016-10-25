@@ -58,7 +58,7 @@ CREATE OR REPLACE TRIGGER Di_PatMustBeSick
 AFTER INSERT ON Diagnosis
 FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
 BEGIN
-	UPDATE PATIENTS SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
+	UPDATE PATIENT SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
 END;
 
 CREATE TABLE Health_Observation_Type(
@@ -86,8 +86,7 @@ CREATE TABLE Health_Observation(
     Ho_Patient NUMBER(16),
     Ho_ObservationType Number(16),
     Ho_Value LONG,
-    Ho_DateTaken Date,
-    Ho_RecordedTime Date,
+    Ho_RecordedDateTime Date,
     CONSTRAINT HO_PK PRIMARY KEY (Ho_Patient, Ho_ObservationType),
     CONSTRAINT HO_P_FK FOREIGN KEY (Ho_Patient) REFERENCES Patient(Pat_Person),
     CONSTRAINT HO_HOT_FK FOREIGN KEY (Ho_ObservationType) REFERENCES Health_Observation_Type(Hot_Id)
