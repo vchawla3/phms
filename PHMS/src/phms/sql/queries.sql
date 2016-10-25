@@ -193,3 +193,15 @@ SELECT * from
 --     (select * from recommendations where Rec_HS_Patient = 1),
 --     (select * the set of health observations where health_observation_disease IN
 --         (select the set of disease the user has))
+
+-- For each patient and each month of 2015, list allerts generated
+select 
+    al_hs_supporter,
+    al_hs_patient,
+    extract(year from al_sent) as year,
+    extract(month from al_sent) as month
+from
+    alert
+where 
+    extract(year from al_sent) = 2015
+order by al_hs_patient, month;
