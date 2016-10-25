@@ -86,8 +86,20 @@ where
         where
             Ho_Patient = 1
     )
+ 
+(SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency 
+FROM Recommendation r, Health_Observation_Type h
+WHERE r.Rec_OBS_Type = h.Hot_Id AND h.Hot_Disease = null AND r.Rec_HS_Patient = ?)
+UNION
+(SELECT ho.Hot_Id, ho.Hot_Name, ho.Hot_Disease, ho.Hot_UpperLimit, ho.Hot_LowerLimit, ho.Hot_Frequency 
+FROM Health_Observation_Type ho
+WHERE ho.Hot_Disease IN (SELECT Di_DiseaseName FROM Diagnosis d
+WHERE d.Di_Patient = ?))
+    
 
 
+SELECT * from
+	(SELECT * from Health_Observation_Type WHERE NOT EXISTS ())
 
 -- select *
 --     fom

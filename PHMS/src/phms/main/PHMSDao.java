@@ -27,6 +27,34 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
+	public ArrayList<HealthObservation> getHOTypesForPatient(Patient p){
+		ArrayList<HealthObservation> hos = new ArrayList<HealthObservation>();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+			conn = openConnection();
+			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h"
+					+ "WHERE a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
+					+ "ORDER BY a.Al_Sent";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, p.getSsn());
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				HealthObservation h = new HealthObservation();
+				hos.add(h);
+			}
+			return hos;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public ArrayList<Alert> getPatientAlerts(Patient p){
 		Connection conn = null;
 		PreparedStatement stmt = null;
@@ -541,12 +569,12 @@ public class PHMSDao {
   			//stmt.executeUpdate("create table TEST1(val1 integer)");
   			//stmt.executeUpdate("insert into TEST values(3)");
   			//stmt.executeUpdate("insert into TEST values(4)");
-  			rs = stmt.executeQuery("SELECT * FROM Person p ,Patient ps WHERE p.Per_Id=ps.Pat_Person");
+  			//rs = stmt.executeQuery("SELECT * FROM Diagnosis d, Patient ps WHERE d.Di_Patient=ps.Pat_Person");
+  			rs = stmt.executeQuery("SELECT * FROM Diagnosis");
   			while (rs.next()) {
-  				long s = rs.getLong("Per_Id");
-  			    String p = rs.getString("Per_Password");
-  			    int sick = rs.getInt("Pat_Sick");
-  			    System.out.println(s+":"+p+":"+sick);
+  			    String p = rs.getString("Di_DiseaseName");
+  			    long s = rs.getLong("Di_Patient");
+  			    System.out.println(s+":"+p);
   			}
   			return true;
   		} catch(SQLException e){
