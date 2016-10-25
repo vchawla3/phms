@@ -38,7 +38,7 @@ public class PHMSDao {
 					+ "WHERE h.HS_Patient = ? AND h.HS_Supporter = p.Per_Id";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
-			rs = stmt.executeQuery(SQL);
+			rs = stmt.executeQuery();
 			while (rs.next()) {
 				HealthSupporter h = new HealthSupporter(rs);
 				hs.add(h);
@@ -126,12 +126,12 @@ public class PHMSDao {
 		ArrayList<String> diseases = new ArrayList<String>();
 		try{
 			conn = openConnection();
-			String SQL = "SELECT * FROM PatientDisease WHERE Pd_Patient = ?";
+			String SQL = "SELECT * FROM Diagnosis WHERE Di_Patient = ?";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, ssn);
-			rs = stmt.executeQuery(SQL);
+			rs = stmt.executeQuery();
 			while (rs.next()) {
-				diseases.add(rs.getString("Pd_DiseaseName"));
+				diseases.add(rs.getString("Di_DiseaseName"));
 			}
 			return diseases;
 		} catch(SQLException e){
@@ -182,8 +182,8 @@ public class PHMSDao {
 					+ "AND P.Per_Password = ?";
 					
 			stmt = conn.prepareStatement(SQL);
-			stmt.setInt(1, 1);
-			stmt.setInt(2, 1);
+			stmt.setLong(1, user);
+			stmt.setLong(2, user);
 			stmt.setString(3, pass);
 			rs = stmt.executeQuery();
 //			Must set each variable of Patient by getting each field value
@@ -217,7 +217,7 @@ public class PHMSDao {
 			stmt.setLong(1, user);
 			stmt.setLong(2, user);
 			stmt.setString(3, pass);
-			rs = stmt.executeQuery(SQL);
+			rs = stmt.executeQuery();
 			h = new HealthSupporter(rs);	
 			return h;
 		} catch(SQLException e){
@@ -418,11 +418,12 @@ public class PHMSDao {
   			//stmt.executeUpdate("create table TEST1(val1 integer)");
   			//stmt.executeUpdate("insert into TEST values(3)");
   			//stmt.executeUpdate("insert into TEST values(4)");
-  			rs = stmt.executeQuery("SELECT * FROM PERSON");
+  			rs = stmt.executeQuery("SELECT * FROM Person p ,Patient ps WHERE p.Per_Id=ps.Pat_Person");
   			while (rs.next()) {
-  			    int s = rs.getInt("Per_Id");
+  				long s = rs.getLong("Per_Id");
   			    String p = rs.getString("Per_Password");
-  			    System.out.println(s + "" + p);
+  			    int sick = rs.getInt("Pat_Sick");
+  			    System.out.println(s+":"+p+":"+sick);
   			}
   			return true;
   		} catch(SQLException e){

@@ -18,7 +18,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//dao.test();
+		//System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -446,9 +446,14 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println(p.getFname() + " " + p.getLname() + "'s Diseases!");
 			System.out.println("---------------------");
 			int s = patientsDiseases.size();
-			for (int i = 0; i < s; i++) {
-				System.out.println((i+1) + ": "+ patientsDiseases.get(i));
+			if (s == 0){
+				System.out.println("No Diseases!");
+			} else {
+				for (int i = 0; i < s; i++) {
+					System.out.println((i+1) + ": "+ patientsDiseases.get(i));
+				}
 			}
+			
 			System.out.println("---------------------");
 		} else {
 			System.out.println(p.getFname() + " " + p.getLname() + " is Well, so no diseases!");
