@@ -45,20 +45,20 @@ CREATE TABLE Disease(
 CREATE TABLE Diagnosis (
 	Di_Patient NUMBER(16),
 	Di_DiseaseName VARCHAR(200),
-	CONSTRAINT Di_PK PRIMARY KEY(Pd_Patient, Pd_DiseaseName),
-	CONSTRAINT Di_P FOREIGN KEY(Pd_Patient) REFERENCES Person(Per_Id),
-	CONSTRAINT Di_D FOREIGN KEY(Pd_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
+	CONSTRAINT Di_PK PRIMARY KEY(Di_Patient, Di_DiseaseName),
+	CONSTRAINT Di_P FOREIGN KEY(Di_Patient) REFERENCES Person(Per_Id),
+	CONSTRAINT Di_D FOREIGN KEY(Di_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
 	--another constraint where patient must be sick!--
 );
 
 
 
 --trigger to make a patient a 'sick' patient if they add a disease--
-CREATE OR REPLACE TRIGGER PD_PatMustBeSick
-AFTER INSERT ON PatientDisease
-FOR EACH ROW WHEN (:NEW.Pd_DiseaseName <> :OLD.Pd_DiseaseName)
+CREATE OR REPLACE TRIGGER Di_PatMustBeSick
+AFTER INSERT ON Diagnosis
+FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
 BEGIN
-	UPDATE PATIENTS SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Pd_Patient;
+	UPDATE PATIENTS SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
 END;
 
 CREATE TABLE Health_Observation_Type(
