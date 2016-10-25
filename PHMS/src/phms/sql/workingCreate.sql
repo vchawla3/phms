@@ -74,9 +74,9 @@ CREATE TABLE Health_Observation(
     Ho_Patient NUMBER(16),
     Ho_ObservationType Number(16),
     Ho_Value LONG,
-    Ho_RecordedDateTime Date,
     Ho_ObservedDateTime Date,
-    CONSTRAINT HO_PK PRIMARY KEY (Ho_Patient, Ho_ObservationType, Ho_RecordedDateTime, Ho_ObservedDateTime),
+    Ho_RecordedDateTime Date,
+    CONSTRAINT HO_PK PRIMARY KEY (Ho_Patient, Ho_ObservationType, Ho_ObservedDateTime, Ho_RecordedDateTime),
     CONSTRAINT HO_P_FK FOREIGN KEY (Ho_Patient) REFERENCES Patient(Pat_Person),
     CONSTRAINT HO_HOT_FK FOREIGN KEY (Ho_ObservationType) REFERENCES Health_Observation_Type(Hot_Id)
 );
