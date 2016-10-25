@@ -16,7 +16,7 @@ public abstract class Person {
 	
 	public Person(ResultSet rs) throws SQLException{
 		try {
-			rs.next();
+			//rs.next();
 			setSsn(rs.getInt("Per_Id"));
 			setFname(rs.getString("Per_FirstName"));
 			setLname(rs.getString("Per_LastName"));

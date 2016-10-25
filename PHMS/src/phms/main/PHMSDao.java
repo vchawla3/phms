@@ -103,7 +103,7 @@ public class PHMSDao {
 		PreparedStatement stmt = null;
 		try{
 			conn = openConnection();
-			String SQL = "INSERT INTO PatientDisease VALUES(?,?)";
+			String SQL = "INSERT INTO Diagnosis VALUES(?,?)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
@@ -187,7 +187,10 @@ public class PHMSDao {
 			stmt.setString(3, pass);
 			rs = stmt.executeQuery();
 //			Must set each variable of Patient by getting each field value
-			p = new Patient(rs);
+			while(rs.next()){
+				p = new Patient(rs);
+			}
+			
 			
 			return p;
 		} catch(SQLException e){
@@ -218,7 +221,10 @@ public class PHMSDao {
 			stmt.setLong(2, user);
 			stmt.setString(3, pass);
 			rs = stmt.executeQuery();
-			h = new HealthSupporter(rs);	
+			while(rs.next()){
+				h = new HealthSupporter(rs);
+			}
+				
 			return h;
 		} catch(SQLException e){
 			e.printStackTrace();
