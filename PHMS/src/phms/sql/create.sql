@@ -75,23 +75,21 @@ CREATE TABLE Health_Observation(
 CREATE TABLE Recommendation(
     Rec_HS_Supporter NUMBER(16),
     Rec_HS_Patient Number(16),
-    Rec_OBS_Type Number(16),
-    Rec_OBS_Patient Number(16),
+    Rec_HOT_Type Number(16),
     Rec_DoctorComment VARCHAR(999),
-    CONSTRAINT REC_PK PRIMARY KEY (Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Patient, Rec_OBS_Type),
+    CONSTRAINT REC_PK PRIMARY KEY (Rec_HS_Supporter, Rec_HS_Patient, Rec_HOT_Type),
     CONSTRAINT REC_FK_SUP FOREIGN KEY (Rec_HS_Supporter, Rec_HS_Patient) REFERENCES Health_Supporter(HS_Supporter, HS_Patient),
-    CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_OBS_Type, Rec_OBS_Patient) references Health_Observation(Ho_ObservationType, Ho_Patient)
+    CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_HOT_Type) references Health_Observation_Type(HoT_Id)
 );
 CREATE TABLE ALERT(
     Al_HS_Supporter NUMBER(16),
     Al_HS_Patient Number(16),
-    Al_OBS_Type Number(16),
-    Al_OBS_Patient Number(16),
+    Al_HOT_Type Number(16),
     Al_Read Number(1),
     Al_Sent Date,
     Al_Alert VARCHAR(999),
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
-    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type),
+    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_HOT_Type)
 );
 
 /*
