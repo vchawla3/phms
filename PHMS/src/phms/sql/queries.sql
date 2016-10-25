@@ -86,3 +86,15 @@ where
         where
             Ho_Patient = 1
     )
+
+
+
+-- select *
+--     fom
+--     (select * from health_observation_type
+--         where
+--         NOT EXISTS (in recommendation table)
+--         AND DiseaseType=null),
+--     (select * from recommendations where Rec_HS_Patient = 1),
+--     (select * the set of health observations where health_observation_disease IN
+--         (select the set of disease the user has))
