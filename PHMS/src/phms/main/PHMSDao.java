@@ -187,7 +187,8 @@ public class PHMSDao {
 			stmt.setString(3, pass);
 			rs = stmt.executeQuery();
 //			Must set each variable of Patient by getting each field value
-//			p = new Patient(rs);	
+			p = new Patient(rs);
+			
 			return p;
 		} catch(SQLException e){
 			e.printStackTrace();
@@ -417,10 +418,11 @@ public class PHMSDao {
   			//stmt.executeUpdate("create table TEST1(val1 integer)");
   			//stmt.executeUpdate("insert into TEST values(3)");
   			//stmt.executeUpdate("insert into TEST values(4)");
-  			//rs = stmt.executeQuery("SELECT * FROM TEST");
+  			rs = stmt.executeQuery("SELECT * FROM PERSON");
   			while (rs.next()) {
-  			    int s = rs.getInt("VAL1");
-  			    System.out.println(s);
+  			    int s = rs.getInt("Per_Id");
+  			    String p = rs.getString("Per_Password");
+  			    System.out.println(s + "" + p);
   			}
   			return true;
   		} catch(SQLException e){

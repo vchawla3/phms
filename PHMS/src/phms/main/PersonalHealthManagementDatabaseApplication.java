@@ -19,7 +19,6 @@ public class PersonalHealthManagementDatabaseApplication {
 		dao = new PHMSDao();
 		
 		//dao.test();
-		
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -252,7 +251,7 @@ public class PersonalHealthManagementDatabaseApplication {
 					diseaseMenu(p);
 					break;
 				case 3:
-
+					viewHOs(p);
 					break;
 				case 4:
 
@@ -272,7 +271,9 @@ public class PersonalHealthManagementDatabaseApplication {
 		} while(!invalid);
 		
 	}
-	
+	private static void viewHOs(Patient p){
+		
+	}
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
 		while(keep){
