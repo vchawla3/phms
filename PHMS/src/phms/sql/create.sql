@@ -65,9 +65,9 @@ CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
     Hot_Disease VARCHAR(200),
-    Hot_UpperLimit LONG,
-    Hot_LowerLimit LONG,
-    Hot_Frequency Long,
+    Hot_UpperLimit NUMBER(16),
+    Hot_LowerLimit NUMBER(16),
+    Hot_Frequency NUMBER(16),
     CONSTRAINT HOT_PK PRIMARY KEY(Hot_Id),
     CONSTRAINT HOT_FK_D FOREIGN KEY (Hot_Disease) REFERENCES Disease(Dis_DiseaseName)
 );
@@ -110,16 +110,16 @@ CREATE TABLE ALERT(
     Al_Read Number(1),
     Al_Sent Date,
     Al_Alert VARCHAR(999),
-    CONSTRAINT ALLERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
-    CONSTRAINT ALLERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient),
+    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_OBS_Type, Al_OBS_Patient) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_OBS_Type, Rec_OBS_Patient)
 );
 
 /*
--- Query for Health Observation Types that have broken their "recommendation" rule (and generate an allert for them).
+-- Query for Health Observation Types that have broken their "recommendation" rule (and generate an alert for them).
 -- 1) Query for recommendations
 -- 2) Query for Health Observations
 -- 3) For each Health Observation that does not meet the minimum/maximum OR is outside the threshold, 
--- 4) Generate an allert
+-- 4) Generate an alert
 
 -- So we really need two triggers, one for Thresholds and one for Frequencies.
 

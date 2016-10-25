@@ -1,5 +1,5 @@
 -- first drop data tables
-drop table allert;
+drop table alert;
 drop table recommendation;
 drop sequence health_obs_seq;
 drop trigger healthobs_ai;
