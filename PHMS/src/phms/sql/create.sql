@@ -40,8 +40,9 @@ CREATE OR REPLACE TRIGGER Di_PatMustBeSick
 AFTER INSERT ON Diagnosis
 FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
 BEGIN
-	UPDATE PATIENT SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
+	UPDATE Patient SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
 END;
+/
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
