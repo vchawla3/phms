@@ -18,7 +18,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//System.out.println(dao.test());
+		System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -281,8 +281,22 @@ public class PersonalHealthManagementDatabaseApplication {
 			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
 	}
+	
 	private static void viewHOs(Patient p){
+		//List the HOTypes and the corresponding thresholds/freq for this patient
+		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
+		System.out.println("---------------------");
 		
+		System.out.println("---------------------");
+		System.out.println();
+		
+		
+		//List out all the currently recorded Health Observations (by Date)
+		System.out.println(p.getFname() + " " + p.getLname() + "'s Recorded Health Observations");
+		System.out.println("---------------------");
+		
+		System.out.println("---------------------");
+		System.out.println("Would you like to add a Health Observation (Y/N)?");
 	}
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
