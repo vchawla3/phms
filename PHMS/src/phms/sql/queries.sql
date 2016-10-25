@@ -164,7 +164,22 @@ WHERE
                        FROM Diagnosis d
                        WHERE d.Di_Patient = 1));
     
+--GET HOTypes where disease is NOT in patients diseases AND HO NAME not in patients recommendation basically THESE ARE GENERIC--
+(SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency 
+FROM Health_Observation_Type h
+WHERE h.Hot_Disease NOT IN(SELECT Di_DiseaseName FROM Diagnosis d
+WHERE d.Di_Patient = ?) AND h.Hot_Name NOT IN(
+SELECT ho.Hot_Name FROM Recommendation r, Health_Observation_Type h where r.r.Rec_OBS_Type = ho.Hot_Id AND r.Rec_HS_Patient = ?))
+UNION
+(SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
+FROM Health_Observation_Type h1
+WHERE)
 
+--Union w/ HOTypes that are patients disease BUT not in reccommends so these freq/thresh supercede--
+(SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
+FROM Health_Observation_Type h1
+WHERE h1.Hot_Id NOT IN(SELECT r.r.Rec_OBS_Type FROM Recommendation r) AND h1.Hot_Disease IN (SELECT Di_DiseaseName FROM Diagnosis d
+WHERE d.Di_Patient = ?))
 
 SELECT * from
 	(SELECT * from Health_Observation_Type WHERE NOT EXISTS ())
