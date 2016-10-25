@@ -95,13 +95,41 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println();
 		System.out.println("Report Queries");
 		System.out.println("----------");
-		System.out.println("1. Health Supps Auth in Sept 2016 by patients w/ Heart Disease");
-		System.out.println("2. Num patients not complying w/ recomended freq of observations");
-		System.out.println("3. List Health Supporters who are also patients");
-		System.out.println("4. List Patients who are not sick");
-		System.out.println("5. How many patients have different observation time and recording time (of the observation).");
+		System.out.println("1. Find patients who belong to more than one Sick Patient class");
+		System.out.println("2. Find all Sick patients whose Health Supporters are also Sick patients");
+		System.out.println("3. Find patients who have two Health Supporters");
+		System.out.println("4. For each patient and each month of 2015, list all the alerts that were generated");
+		System.out.println("5. For each month of 2015, list the patients with the most alerts.");
 		System.out.println("----------");
 		System.out.println();
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			input = 0;
+		}
+		switch(input){
+			case 0:
+				System.out.println("Invalid input, back to Start Menu");
+				break;
+			case 1:
+				dao.patientsWithMoreThanOneDiagnosis();
+				break;
+			case 2:
+				dao.sickPatientsWithHSAlsoSick();
+				break;
+			case 3:
+				dao.patientsWithTwoHS();
+				break;
+			case 4:
+				dao.alertsEachMonthEachPatient();
+				break;
+			case 5:
+				dao.mostAlertsPerMonth();
+				break;
+		}
+		System.out.println("----------");
+		startMenu();
 	}
 
 	private static void signUp() {
@@ -173,7 +201,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("2. Diagnoses");
 		System.out.println("3. Health Indicator");
 		System.out.println("4. Alerts");
-		System.out.println("5. Health Supporters");
+		System.out.println("5. Recomendations");
 		System.out.println("6. Logout");
 		System.out.println("---------------------");
 		System.out.println();
@@ -195,16 +223,16 @@ public class PersonalHealthManagementDatabaseApplication {
 					profile(h);
 					break;
 				case 2:
-
+					diagnoses(h);
 					break;
 				case 3:
-
+					healthInd(h);
 					break;
 				case 4:
-
+					alerts(h);
 					break;
 				case 5:
-
+					recs(h);
 					break;
 				case 6:
 					startMenu();
@@ -217,6 +245,37 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 		} while(!invalid);
 		
+	}
+	
+	private static void recs(HealthSupporter h){
+		System.out.println("View/Add your patients Recommendations");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewRecs(h,p);
+	}
+	
+	private static void viewRecs(HealthSupporter h, Patient p){
+		
+	}
+	private static void alerts(HealthSupporter h){
+		System.out.println("View/Edit your patients Alerts");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewAlerts(h,p);
+	}
+	
+	private static void healthInd(HealthSupporter h){
+		System.out.println("View your patients Health Indicators");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		viewHOs(h,p);
+	}
+	
+	private static void diagnoses(HealthSupporter h){
+		System.out.println("View your patients Diagnoses");
+		System.out.println("---------------------");
+		Patient p = selectPatient(h);
+		diseaseMenu(h,p);
 	}
 	
 	private static void profile(HealthSupporter h){
@@ -411,13 +470,13 @@ public class PersonalHealthManagementDatabaseApplication {
 					showProfile(null,p);
 					break;
 				case 2:
-					diseaseMenu(p);
+					diseaseMenu(null,p);
 					break;
 				case 3:
-					viewHOs(p);
+					viewHOs(null,p);
 					break;
 				case 4:
-					viewAlerts(p);
+					viewAlerts(null,p);
 					break;
 				case 5:
 					patientViewsHS(p);
@@ -434,7 +493,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		} while(!invalid);
 		
 	}
-	private static void viewAlerts(Patient p){
+	private static void viewAlerts(HealthSupporter h, Patient p){
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Alerts");
 		ArrayList<Alert> alerts = dao.getPatientAlerts(p);
 		int size = alerts.size();
@@ -443,9 +502,18 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
 			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
+		
+		
+		
+		
+		if(h==null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
 	}
 	
-	private static void viewHOs(Patient p){
+	private static void viewHOs(HealthSupporter h, Patient p){
 		//List the HOTypes and the corresponding thresholds/freq for this patient
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
 		System.out.println("---------------------");
@@ -460,6 +528,12 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 		System.out.println("---------------------");
 		System.out.println("Would you like to add a Health Observation (Y/N)?");
+		
+		if(h == null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
 	}
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
@@ -562,7 +636,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("---------------------");
 	}
 	
-	private static void diseaseMenu(Patient p){
+	private static void diseaseMenu(HealthSupporter h, Patient p){
 		boolean keep = true;
 		while(keep){
 			System.out.println("Make a selection");
@@ -570,7 +644,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println("1. View Diseases");
 			System.out.println("2. Add Disease");
 			System.out.println("3. Remove Disease");
-			System.out.println("4. Back To Patient Menu");
+			System.out.println("4. Back To Menu");
 		
 			int input;
 			try{
@@ -580,7 +654,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 			switch(input){
 				case 0:
-					System.out.println("Invalid input, back to Patient Menu!!!!!");
+					System.out.println("Invalid input, back to Menu!!!!!");
 					keep = false;
 					break;
 				case 1:
@@ -597,7 +671,12 @@ public class PersonalHealthManagementDatabaseApplication {
 					break;
 			}
 		}
-		patientMenu(p);
+		if(h == null){
+			patientMenu(p);
+		} else {
+			hsMenu(h);
+		}
+		
 		
 	}
 	private static void addDisease(Patient p){
