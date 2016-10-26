@@ -21,3 +21,5 @@ drop table disease;
 drop table health_supporter;
 drop table patient;
 drop table person;
+-- Drop trigger
+drop trigger ALERT_RANGE;
