@@ -290,7 +290,7 @@ public class PersonalHealthManagementDatabaseApplication {
 	private static void addRec(HealthSupporter h, Patient p) {
 		System.out.println("---------------------");
 		System.out.println("New Recommendation");
-		
+		//TODO add rec
 	}
 
 	private static void alerts(HealthSupporter h){
@@ -538,13 +538,19 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
 			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
-		
-		
-		
-		
+
+		//TODO Clearing Alerts
 		if(h==null){
+			System.out.println("Want to clear an alert?");
+			System.out.println("Select an Alert from above to Clear");
+			//if it is a freq alert, allow them to clear, otherwise have them enter HO
 			patientMenu(p);
 		} else {
+			System.out.println("Want to clear an alert?");
+			System.out.println("Select an Alert from above to Clear");
+			
+			
+			//dao.clearAlert(alerts.get(input));
 			hsMenu(h);
 		}
 	}
@@ -553,7 +559,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//List the HOTypes and the corresponding thresholds/freq for this patient
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
 		System.out.println("---------------------");
-		//call dao for the HOT's and list em out here!!!!!!!
+		//TODO call dao for the HOT's and list em out here!!!!!!!
 		System.out.println("---------------------");
 		System.out.println();
 		
@@ -738,6 +744,7 @@ public class PersonalHealthManagementDatabaseApplication {
 	private static void addHS(Patient p){
 		System.out.println("Select a Health Supporter to Add");
 		System.out.println("---------------------");
+		//TODO add HS
 	}
 	
 	
