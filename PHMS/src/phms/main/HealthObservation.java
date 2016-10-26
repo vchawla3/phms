@@ -19,8 +19,7 @@ public class HealthObservation {
 		setHoType(rs.getString("Hot_Name"));
 		setValue(rs.getLong("Ho_Value"));
 		setRecordedDate(rs.getDate("Ho_RecordedDateTime"));
-		// TODO fix once the column is added to the table
-		//setObservedDate(rs.getDate("Ho_RecordedDateTime"));
+		setObservedDate(rs.getDate("Ho_ObservedDateTime"));
 	}
 
 	public long getPatientId() {
