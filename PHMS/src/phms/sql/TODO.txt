@@ -29,7 +29,7 @@
 - [x] Retrieve the user's diseases (And as a Health supporter
 - [x] Remove/Delete a Health Supporter
 - [x] List the patients who are not ‘sick’.
-- [ ] How many patients have different observation time and recording time (of the observation).
+- [x] How many patients have different observation time and recording time (of the observation).
 - [x] List the health supporters who themselves are patients.
 - [ ] Give the number of patients who were not complying with the recommended frequency of recording observations.
 - [x] List the number of health supporters that were authorized in the month of September 2016 by patients suffering from heart disease.

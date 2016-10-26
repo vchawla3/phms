@@ -98,6 +98,6 @@ CREATE TABLE ALERT(
     Al_Read Number(1),
     Al_Sent Date,
     Al_Alert VARCHAR(999),
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type),
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, AL_Sent),
     CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_HOT_Type)
 );

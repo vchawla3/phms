@@ -230,3 +230,14 @@ where HS_Patient in (select
                         Di_DiseaseName = 'Heart Disease') AND
      extract(month from HS_DateAuthorized) = 9 AND
      extract(year from HS_DateAuthorized) = 2016;
+
+--How many patients have different observation time and recording time (of the observation).
+select 
+	count(*) 
+from (
+	select 
+		ho_patient 
+	from 
+		Health_Observation
+    where 
+    	HO_OBSERVEDDATETIME != HO_RECORDEDDATETIME);
