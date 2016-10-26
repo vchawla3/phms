@@ -216,3 +216,17 @@ group by extract(month from al_sent), AL_HS_Patient
 having count(Distinct AL_HS_Patient) = (select max( count( Distinct AL_HS_Patient) )
                                    from Alert
                                    group by extract(month from AL_sent) );
+
+--List the number of health supporters that were authorized in the month of September 2016 by patients suffering from heart disease.
+select 
+   HS_Supporter
+from 
+    Health_Supporter
+where HS_Patient in (select 
+                        Di_Patient
+                    from
+                        Diagnosis
+                    where
+                        Di_DiseaseName = 'Heart Disease') AND
+     extract(month from HS_DateAuthorized) = 9 AND
+     extract(year from HS_DateAuthorized) = 2016;
