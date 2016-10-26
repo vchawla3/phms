@@ -241,3 +241,13 @@ from (
 		Health_Observation
     where 
     	HO_OBSERVEDDATETIME != HO_RECORDEDDATETIME);
+
+-- Give the number of patients who were not complying with the recommended frequency of recording observations
+-- Count patients who are in the set of patients who have frequency alerts
+
+select 
+   count( Distinct Al_HS_Patient)
+from
+    Alert
+where
+    Al_Alert like '%frequency%%';
