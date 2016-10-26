@@ -165,15 +165,26 @@ WHERE
                        WHERE d.Di_Patient = 1));
     
 --GET HOTypes where disease is NOT in patients diseases AND HO NAME not in patients recommendation basically THESE ARE GENERIC--
-(SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency 
-FROM Health_Observation_Type h
-WHERE h.Hot_Disease NOT IN(SELECT Di_DiseaseName FROM Diagnosis d
-WHERE d.Di_Patient = ?) AND h.Hot_Name NOT IN(
-SELECT ho.Hot_Name FROM Recommendation r, Health_Observation_Type h where r.r.Rec_OBS_Type = ho.Hot_Id AND r.Rec_HS_Patient = ?))
-UNION
-(SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
-FROM Health_Observation_Type h1
-WHERE)
+
+-- Generic Recommendations
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h
+where h.Hot_Disease IS NULL;
+
+-- Disease Recommendations
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h
+where h.Hot_Disease IS NOT NULL AND 
+            h.Hot_Id NOT IN (
+                             SELECT Rec_HOT_Type from Recommendation);
+
+-- Recommended HoT for Patients
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h, Recommendation r, PATIENT p
+where h.Hot_Id = r.Rec_HOT_Type AND p.Pat_Person=r.Rec_HS_Patient;
+
+-- Test query
+select hot_name, hot_disease from Health_Observation_Type h where h.hot_name='Weight';
 
 --Union w/ HOTypes that are patients disease BUT not in reccommends so these freq/thresh supercede--
 (SELECT h1.Hot_Id, h1.Hot_Name, h1.Hot_Disease, h1.Hot_UpperLimit, h1.Hot_LowerLimit, h1.Hot_Frequency 
