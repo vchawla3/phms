@@ -128,7 +128,8 @@ CREATE TABLE ALERT(
 
 CREATE TRIGGER alert_range
 AFTER INSERT OR UPDATE OF Ho_Value ON Health_Observation
-WHEN
+FOR EACH ROW
+    BEGIN
     DECLARE out_of_bounds INT;
     DECLARE u_limit, l_limit LONG;
     DECLARE HS_support NUMBER(16);
@@ -141,7 +142,7 @@ WHEN
     select HS_Supporter INTO HS_support FROM Health_Supporter
     WHERE NEW.Ho_Patient=Health_Supporter.HS_Patient;
     IF (out_of_bounds = 1) THEN
-        INSERT INTO ALERT VALUES(HS_support, NEW.Ho_Patient, NEW.Ho_ObservationType, NEW.Ho_Patient, 0, NEW.Ho_DateTaken, CONCAT(NEW.Ho_ObservationType,'for', NEW.Ho_Patient, 'is not in the specified range. Immediate action required.'));
+        INSERT INTO ALERT VALUES(HS_support, NEW.Ho_Patient, NEW.Ho_ObservationType, 0, NEW.Ho_DateTaken, CONCAT(NEW.Ho_ObservationType,'for', NEW.Ho_Patient, 'is not in the specified range. Immediate action required.'));
     END IF;
 END;
 \
