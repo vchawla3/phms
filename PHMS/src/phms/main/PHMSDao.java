@@ -13,6 +13,9 @@ import java.sql.PreparedStatement;
 public class PHMSDao {
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
+	//static final String DBuser = "aapatel8";
+	//static final String DBpassword = "200005768";
+	
 	static final String DBuser = "vchawla3";
 	static final String DBpassword = "200006054";
 	
@@ -26,7 +29,138 @@ public class PHMSDao {
 //        Statement stmt = null;
 //        ResultSet rs = null;
 	}
-  	
+	
+	public boolean addHealthObservation(HealthObservation ho) throws SQLException{
+		long hoID = findhoID(ho);
+		ho.setHoTypeId(hoID);
+		
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		//ResultSet rs = null;
+		try{
+			conn = openConnection();
+			String SQL = "INSERT INTO Health_Observation VALUES(?,?,?,?,?)";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, ho.getPatientId());
+			stmt.setLong(2, ho.getHoTypeId());
+			stmt.setLong(3, ho.getValue());
+			stmt.setDate(4, ho.getObservedDate());
+			stmt.setDate(5, ho.getRecordedDate());
+			stmt.executeUpdate();
+			conn.commit();
+			return true;
+		} catch(SQLException e){
+			conn.rollback();
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	private Long findhoID(HealthObservation h) {
+		long id;
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+			conn = openConnection();
+			//First check recommends to see if it has it
+			String SQL = "SELECT h.Hot_Id FROM Health_Observation_Type h, Recommendation r "
+					+ "WHERE r.Rec_HOT_Type = h.Hot_Id AND h.Hot_Name = ? AND r.Rec_HS_Patient = ?";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setString(1, h.getHoType());
+			stmt.setLong(2, h.getPatientId());
+			rs = stmt.executeQuery();
+			if (rs.next()) {
+				id = rs.getLong("Hot_Id");
+			} else {
+				close(stmt);
+				close(rs);
+				//Then check the if there is a HOT ID for any disease they have
+				SQL = "SELECT h.Hot_Id FROM Health_Observation_Type h WHERE h.Hot_Name = ? AND h.Hot_Disease "
+						+ "IN (SELECT Di_DiseaseName FROM Diagnosis WHERE Di_Patient = ?)";
+				stmt = conn.prepareStatement(SQL);
+				stmt.setString(1, h.getHoType());
+				stmt.setLong(2, h.getPatientId());
+				rs = stmt.executeQuery();
+				if(rs.next()) {
+					id = rs.getLong("Hot_Id");
+				} else {
+					close(stmt);
+					close(rs);
+					//Lastly just get the generic one
+					SQL = "SELECT h.Hot_Id FROM Health_Observation_Type h WHERE h.Hot_Name = ? AND h.Hot_Disease=null ";
+					stmt = conn.prepareStatement(SQL);
+					stmt.setString(1, h.getHoType());
+					rs = stmt.executeQuery();
+					rs.next();
+					id = rs.getLong("Hot_Id"); 
+				}
+			}
+			return id;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+		
+	}
+
+	public ArrayList<String> listOfHOTNames(){
+		ArrayList<String> list = new ArrayList<String>();
+		Connection conn = null;
+		Statement stmt = null;
+		ResultSet rs = null;
+		try{
+			conn = openConnection();
+			stmt = conn.createStatement();
+			String SQL = "SELECT DISTINCT Hot_Name FROM Health_Observation_Type";
+			rs = stmt.executeQuery(SQL);
+			while (rs.next()) {
+				list.add(rs.getString("Hot_Name"));
+			}
+			return list;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	public ArrayList<HealthObservation> getPatientHealthObs(Patient p) {
+		ArrayList<HealthObservation> hos = new ArrayList<HealthObservation>();
+  		Connection conn = null;
+  		PreparedStatement stmt = null;
+  		ResultSet rs = null;
+  		try{
+  			conn = openConnection();
+  			String SQL = "SELECT * FROM Health_Observation_Type ho, Health_Observation h "
+  						+ "WHERE h.Ho_Patient = ? AND h.Ho_ObservationType = ho.Hot_Id ORDER BY h.Ho_ObservedDateTime";
+  			stmt = conn.prepareStatement(SQL);
+  			stmt.setLong(1, p.getSsn());
+  			rs = stmt.executeQuery();
+  			while (rs.next()) {
+  				HealthObservation pa = new HealthObservation(rs);
+  				hos.add(pa);
+  			}
+  			return hos;
+  		} catch(SQLException e){  			
+  			e.printStackTrace();
+  			return null;
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+	}
+	
   	public ArrayList<HealthObservationType> getAllRecomendationsforPatient(Patient p){
   		ArrayList<HealthObservationType> hos = new ArrayList<HealthObservationType>();
   		Connection conn = null;
@@ -673,28 +807,22 @@ public class PHMSDao {
 			throw e;
 		}
 	}
-	
-
-	
 	private void close(Connection conn) {
         if(conn != null) {
             try { conn.close(); } catch(Throwable whatever) {}
         }
     }
-
     private void close(Statement st) {
         if(st != null) {
             try { st.close(); } catch(Throwable whatever) {}
         }
     }
-
     private void close(ResultSet rs) {
         if(rs != null) {
             try { rs.close(); } catch(Throwable whatever) {}
         }
     }
-
-  //just testing the DB connection to create/insert/select data, no real use
+    //just testing the DB connection to create/insert/select data, no real use
   	public boolean test(){
   		Connection conn = null;
   		Statement stmt = null;

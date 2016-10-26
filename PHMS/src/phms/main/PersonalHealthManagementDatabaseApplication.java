@@ -1,6 +1,7 @@
 package phms.main;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.NoSuchElementException;
 import java.util.Scanner;
 //import phms.model.*;
 //import phms.dao.*;
@@ -46,6 +47,9 @@ public class PersonalHealthManagementDatabaseApplication {
 				input = Integer.parseInt(console.nextLine());
 			} catch (NumberFormatException e){
 				input = 0;
+			} catch (NoSuchElementException e) {
+				input = 0;
+				System.exit(0);
 			}
 			switch (input){
 				case 1:
@@ -244,7 +248,6 @@ public class PersonalHealthManagementDatabaseApplication {
 					break;
 			}
 		} while(!invalid);
-		
 	}
 	
 	private static void recs(HealthSupporter h){
@@ -255,8 +258,41 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void viewRecs(HealthSupporter h, Patient p){
+		ArrayList<HealthObservationType> hot = dao.getAllRecomendationsforPatient(p);
+		int size = hot.size();
+		for(int i = 0; i < size; i++){
+			HealthObservationType ho = hot.get(i);
+			System.out.println("Recomendation #" + (i+1));
+			System.out.print("Name: ");
+			System.out.println(ho.getName());
+			System.out.print("Disease: ");
+			System.out.println(ho.getDisease());
+			System.out.print("Upper Limit: ");
+			System.out.println(ho.getUpper());
+			System.out.print("Lower Limit: ");
+			System.out.println(ho.getLower());
+			System.out.print("Freq: ");
+			System.out.println(ho.getFreq());
+			System.out.println("---------------------");
+		}
+		
+		System.out.println("Add a Recommendation (Y/N)?");
+		String input = console.nextLine();
+		if (input.equalsIgnoreCase("y")){
+			addRec(h,p);
+		} else if (input.equalsIgnoreCase("n")){
+			hsMenu(h);
+		} else {
+			System.out.println("Invalid Input, back to Health Supporter Menu");
+			hsMenu(h);
+		}
+	}
+	private static void addRec(HealthSupporter h, Patient p) {
+		System.out.println("---------------------");
+		System.out.println("New Recommendation");
 		
 	}
+
 	private static void alerts(HealthSupporter h){
 		System.out.println("View/Edit your patients Alerts");
 		System.out.println("---------------------");
@@ -517,7 +553,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//List the HOTypes and the corresponding thresholds/freq for this patient
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
 		System.out.println("---------------------");
-		
+		//call dao for the HOT's and list em out here!!!!!!!
 		System.out.println("---------------------");
 		System.out.println();
 		
@@ -525,9 +561,37 @@ public class PersonalHealthManagementDatabaseApplication {
 		//List out all the currently recorded Health Observations (by Date)
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Recorded Health Observations");
 		System.out.println("---------------------");
-		
+		ArrayList<HealthObservation> hos = dao.getPatientHealthObs(p);
+		int size = hos.size();
+		for(int i = 0; i < size; i++){
+			HealthObservation a = hos.get(i);
+			if (a.getHoType().equals("Mood")) {
+				String mood;
+				if (a.getValue() == 1){
+					mood = "Happy";
+				} else if(a.getValue() == 2){
+					mood = "Neutral";
+				} else {
+					mood = "Sad";
+				}
+				System.out.println((i+1) + "- Type: " + a.getHoType() + " Value: " + mood + " Recorded Date: " + a.getRecordedDate().toString() + " Observed Date: " + a.getObservedDate().toString());
+				
+			} else {
+				System.out.println((i+1) + "- Type: " + a.getHoType() + " Value: " + a.getValue() + " Recorded Date: " + a.getRecordedDate().toString() + " Observed Date: " + a.getObservedDate().toString());
+			}
+		}
 		System.out.println("---------------------");
 		System.out.println("Would you like to add a Health Observation (Y/N)?");
+		String yn = console.nextLine();
+		while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
+			System.out.println("Enter Y or N? ");
+			yn = console.nextLine();
+		}
+		if (yn.equalsIgnoreCase("y")){
+			addHO(p);
+		} else {
+			System.out.println("Back to Menu");
+		}
 		
 		if(h == null){
 			patientMenu(p);
@@ -535,6 +599,73 @@ public class PersonalHealthManagementDatabaseApplication {
 			hsMenu(h);
 		}
 	}
+	
+	
+	private static void addHO(Patient p) {
+		HealthObservation ho = new HealthObservation();
+		ho.setPatientId(p.getSsn());
+		System.out.println("Adding a Health Observation");
+		System.out.println("---------------------");
+		System.out.println("Select the Type");
+		ArrayList<String> names = dao.listOfHOTNames();
+		int size = names.size();
+		for(int i = 0; i < size; i++){
+			System.out.println((i+1) +": " + names.get(i));
+		}
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		input--;
+		if (input >= size) {
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		ho.setHoType(names.get(input));
+		System.out.println("Enter the Value (If Mood enter 1-3 for Happy (1), Neutral (2), Sad (3) and if Pain enter 1-10):");
+		long in;
+		try{
+			in = Long.parseLong(console.nextLine());
+		} catch (NumberFormatException e){
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		ho.setValue(in);
+		
+		System.out.println("Enter Observed Month (1-12): ");
+		int month = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Observed Day: ");
+		int day = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Observed Year: ");
+		int year = Integer.parseInt(console.nextLine());
+		
+		String date = year + "-" + month + "-" + day;
+		java.sql.Date dat = java.sql.Date.valueOf(date);
+		ho.setObservedDate(dat);
+		
+		System.out.println("Enter Recorded Month (1-12): ");
+		month = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Recorded Day: ");
+		day = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Recorded Year: ");
+		year = Integer.parseInt(console.nextLine());
+		
+		String date2 = year + "-" + month + "-" + day;
+		java.sql.Date dat2 = java.sql.Date.valueOf(date2);
+		ho.setRecordedDate(dat2);
+		
+		try {
+			dao.addHealthObservation(ho);
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			e.printStackTrace();
+		}
+		return;
+	}
+
 	private static void patientViewsHS(Patient p){
 		boolean keep = true;
 		while(keep){

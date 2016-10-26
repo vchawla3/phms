@@ -53,6 +53,15 @@ BEGIN
 	
 END;
 /
+CREATE OR REPLACE TRIGGER Di_PatMustHaveHS
+BEFORE INSERT OR UPDATE ON Diagnosis
+FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
+BEGIN
+	IF ((SELECT COUNT(*) FROM Health_Supporter h Where h.HS_Patient = :NEW.Di_Patient) = 0) THEN
+        raise_application_error(-20101, 'User Requires a Health Supporter');
+    END IF;
+END;
+/
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),
@@ -76,7 +85,7 @@ END;
 CREATE TABLE Health_Observation(
     Ho_Patient NUMBER(16),
     Ho_ObservationType Number(16),
-    Ho_Value LONG,
+    Ho_Value Number(16),
     Ho_ObservedDateTime Date,
     Ho_RecordedDateTime Date,
     CONSTRAINT HO_PK PRIMARY KEY (Ho_Patient, Ho_ObservationType, Ho_ObservedDateTime, Ho_RecordedDateTime),
@@ -126,23 +135,25 @@ CREATE TABLE ALERT(
 
 -- Test Pending
 
-CREATE TRIGGER alert_range
-AFTER INSERT OR UPDATE OF Ho_Value ON Health_Observation
+CREATE OR REPLACE TRIGGER ALERT_RANGE 
+AFTER INSERT OR UPDATE OF HO_VALUE ON HEALTH_OBSERVATION 
+REFERENCING OLD AS HO_OLD NEW AS HO_NEW 
 FOR EACH ROW
-    BEGIN
-    DECLARE out_of_bounds INT;
-    DECLARE u_limit, l_limit LONG;
-    DECLARE HS_support NUMBER(16);
-    SET out_of_bounds = 1;
-    select Hot_UpperLimit, Hot_LowerLimit INTO u_limit, l_limit FROM Health_Observation_Type
-    WHERE Ho_ObservationType = Health_Observation_Type.Hot_Id;
-    IF (NEW.Ho_Value > l_limit AND NEW.Ho_Value < u_limit) THEN
-        out_of_bounds = 0
-    END IF;
-    select HS_Supporter INTO HS_support FROM Health_Supporter
-    WHERE NEW.Ho_Patient=Health_Supporter.HS_Patient;
-    IF (out_of_bounds = 1) THEN
-        INSERT INTO ALERT VALUES(HS_support, NEW.Ho_Patient, NEW.Ho_ObservationType, 0, NEW.Ho_DateTaken, CONCAT(NEW.Ho_ObservationType,'for', NEW.Ho_Patient, 'is not in the specified range. Immediate action required.'));
-    END IF;
+DECLARE 
+    u_limit NUMBER(16); 
+    l_limit NUMBER(16);
+    HS_support NUMBER(16);
+    out_of_bounds NUMBER(16) := 1;
+BEGIN
+  select Hot_UpperLimit, Hot_LowerLimit INTO u_limit, l_limit FROM Health_Observation_Type
+  WHERE :HO_NEW.Ho_ObservationType = Health_Observation_Type.Hot_Id;
+  IF (:HO_NEW.Ho_Value > l_limit AND :HO_NEW.Ho_Value < u_limit) THEN
+      out_of_bounds := 0;
+  END IF;
+  select HS_Supporter INTO HS_support FROM Health_Supporter
+  WHERE :HO_NEW.Ho_Patient = Health_Supporter.HS_Patient;
+  IF (out_of_bounds = 1) THEN
+    INSERT INTO ALERT VALUES (HS_support, :HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'));
+  END IF;
 END;
 \
