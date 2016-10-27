@@ -30,6 +30,37 @@ public class PHMSDao {
 //        ResultSet rs = null;
 	}
 	
+
+	public ArrayList<HealthSupporter> getPossibleHS(Patient p) {
+		ArrayList<HealthSupporter> list = new ArrayList<HealthSupporter>();
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		ResultSet rs = null;
+		try{
+			conn = openConnection();
+			String SQL = "select * from Person "
+					+ "where Per_ID != ? AND "
+					+ "Per_Id NOT IN ( select HS_Supporter from  Health_Supporter where HS_Patient = ?)";
+			
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, p.getSsn());
+			stmt.setLong(2, p.getSsn());
+			rs = stmt.executeQuery();
+			while (rs.next()) {
+				HealthSupporter pa = new HealthSupporter(rs, true);
+				list.add(pa);
+			}
+			return list;
+		} catch(SQLException e){
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return null;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
 	public boolean addHealthObservation(HealthObservation ho) throws SQLException{
 		long hoID = findhoID(ho);
 		ho.setHoTypeId(hoID);
@@ -90,8 +121,9 @@ public class PHMSDao {
 				} else {
 					close(stmt);
 					close(rs);
-					//Lastly just get the generic one
-					SQL = "SELECT h.Hot_Id FROM Health_Observation_Type h WHERE h.Hot_Name = ? AND h.Hot_Disease=null ";
+					//Lastly just get the generic one, so disease null and id not in reccomendation
+					SQL = "SELECT h.Hot_Id FROM Health_Observation_Type h WHERE h.Hot_Name = ? AND h.Hot_Disease IS NULL "
+							+ "AND h.Hot_Id NOT IN(SELECT r.Rec_HOT_Type FROM Recommendation r)";
 					stmt = conn.prepareStatement(SQL);
 					stmt.setString(1, h.getHoType());
 					rs = stmt.executeQuery();
@@ -409,6 +441,8 @@ public class PHMSDao {
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
 			stmt.executeUpdate();
+			//close(stmt);
+			//Call stored proc to update patient table 
 			conn.commit();
 			return true;
 		} catch(SQLException e){
@@ -720,7 +754,8 @@ public class PHMSDao {
 			SQL = "INSERT INTO PATIENT VALUES (?, ?)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setFloat(1,  p.getSsn());
-			stmt.setFloat(2, p.isSick());
+			//default set sick to 0, will be updated as diseases added/removed
+			stmt.setFloat(2, 0);
 			stmt.executeUpdate();	
 			return true;
 		} catch(SQLException e){
@@ -730,8 +765,6 @@ public class PHMSDao {
 			close(stmt);
             close(conn);
 		}
-		
-		
 	}
 	
 	public ArrayList<String> getAllPatientSSNs(){
@@ -758,36 +791,90 @@ public class PHMSDao {
 		}
 	}
 	
-	public boolean addNewHS(HealthSupporter p){
+	//Unused and didnt use prepared statement anyway
+//	public boolean addNewHS(HealthSupporter p){
+//		Connection conn = null;
+//		Statement stmt = null;
+//		try{
+//			conn = openConnection();
+//			stmt = conn.createStatement();
+//			String SQL = "INSERT INTO PERSON "
+//					+ "VALUES ("
+//					+ p.getSsn() + ","
+//					+ p.getFname() + ","
+//					+ p.getLname() + ","
+//					+ p.getDOB() + ","
+//					+ p.getAddress() + ","
+//					+ p.getPhoneNum() + ","
+//					+ p.getSex() + ","
+//					+ p.getPassword() + ""
+//					+ ")";
+//			stmt.executeUpdate(SQL);
+//			SQL =  "INSERT INTO Health_Supporter "
+//				+ "VALUES ("
+//				+ p.getSsn() + ","
+//				+ p.getSupportingPatientID() + ","
+//				+ p.getDateAuthorized() + ","
+//				+ p.getDateUnauthorized()
+//				+ ")";
+//			stmt.executeUpdate(SQL);	
+//			return true;
+//		} catch(SQLException e){
+//			e.printStackTrace();
+//			return false;
+//		} finally {
+//			close(stmt);
+//            close(conn);
+//		}
+//	}
+	
+	public boolean addNewPerson(Patient p){
 		Connection conn = null;
-		Statement stmt = null;
+		PreparedStatement stmt = null;
+		
 		try{
 			conn = openConnection();
-			stmt = conn.createStatement();
 			String SQL = "INSERT INTO PERSON "
-					+ "VALUES ("
-					+ p.getSsn() + ","
-					+ p.getFname() + ","
-					+ p.getLname() + ","
-					+ p.getDOB() + ","
-					+ p.getAddress() + ","
-					+ p.getPhoneNum() + ","
-					+ p.getSex() + ","
-					+ p.getPassword() + ""
-					+ ")";
-			stmt.executeUpdate(SQL);
-			SQL =  "INSERT INTO Health_Supporter "
-				+ "VALUES ("
-				+ p.getSsn() + ","
-				+ p.getSupportingPatientID() + ","
-				+ p.getDateAuthorized() + ","
-				+ p.getDateUnauthorized()
-				+ ")";
-			stmt.executeUpdate(SQL);	
+					+ "VALUES (?, ?, ?, ?, ?, ?, ?, ?)";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, p.getSsn());
+			stmt.setString(2, p.getFname());
+			stmt.setString(3, p.getLname());
+			stmt.setDate(4, p.getDOB());
+			stmt.setString(5, p.getAddress());
+			stmt.setString(6,  p.getPhoneNum());
+			stmt.setString(7,  p.getSex());
+			stmt.setString(8,  p.getPassword());
+			stmt.executeUpdate();
+			close(stmt);
 			return true;
 		} catch(SQLException e){
 			e.printStackTrace();
 			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+	}
+	
+	public boolean addHSAlreadyPerson(HealthSupporter h) throws SQLException{
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		
+		try{
+			conn = openConnection();
+			String SQL = "INSERT INTO Health_Supporter VALUES (?, ?, ?, ?)";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setFloat(1,  h.getSsn());
+			stmt.setFloat(2, h.getSupportingPatientID());
+			stmt.setDate(3, h.getDateAuthorized());
+			stmt.setDate(4, h.getDateUnauthorized());
+			stmt.executeUpdate();	
+			return true;
+		} catch(SQLException e){
+			//e.printStackTrace();
+			//Cannot add more than 2 HS per Patient !!!
+			throw e;
 		} finally {
 			close(stmt);
             close(conn);
@@ -969,4 +1056,5 @@ public class PHMSDao {
 		// TODO Auto-generated method stub
 		
 	}
+
 }

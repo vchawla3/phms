@@ -27,6 +27,10 @@ public class HealthSupporter extends Person {
 			//System.out.println(e.getMessage());
 		}
 	}
+	
+	public HealthSupporter(ResultSet rs, boolean f) throws SQLException{
+		super(rs);
+	}
 
 	public long getSupportingPatientID() {
 		return supportingPatientID;

@@ -135,11 +135,8 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("----------");
 		startMenu();
 	}
-
-	private static void signUp() {
-		System.out.println("New Patient Menu");
-		System.out.println("----------");
-		//Patient p = new Patient();
+	
+	private static Patient enterInfo(){ 
 		System.out.println("Enter SSN: ");
 		long ssn = Long.parseLong(console.nextLine());
 		
@@ -164,14 +161,15 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("Enter Password: ");
 		String pass = console.nextLine();
 		
-		System.out.println("Sick (Y/N)? ");
-		String yn = console.nextLine();
-		
-		while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
-			System.out.println("Enter Y or N? ");
-			yn = console.nextLine();
-		}
-		
+//		Sick is set Automatically by DB
+//		System.out.println("Sick (Y/N)? ");
+//		String yn = console.nextLine();
+//		
+//		while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
+//			System.out.println("Enter Y or N? ");
+//			yn = console.nextLine();
+//		}
+//		
 		Patient p = new Patient();
 		p.setSsn(ssn);
 		p.setFname(fname);
@@ -186,15 +184,41 @@ public class PersonalHealthManagementDatabaseApplication {
 		p.setPhoneNum(phone);
 		p.setSex(sex);
 		p.setPassword(pass);
-		if (yn.equalsIgnoreCase("y")){
-			p.setSick(1);
-		} else if (yn.equalsIgnoreCase("n")){
-			p.setSick(0);
+		return p;
+	}
+
+	private static void signUp() {
+		System.out.println("New Account Menu");
+		System.out.println("----------");
+		System.out.println("1. Add new Patient ");
+		System.out.println("2. Add new Health Supporter");
+		System.out.println("----------");
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			input = 0;
+		} 
+		
+		switch(input){
+			case 0:
+				System.out.println("Invalid input, Back to Start Menu");
+				break;
+			case 1:
+				System.out.println("New Patient Menu");
+				System.out.println("----------");
+				Patient p = enterInfo();
+				dao.addNewPatient(p);
+				System.out.println("New Patient Added!!");
+				break;
+			case 2:
+				System.out.println("New Health Supporter Menu");
+				System.out.println("----------");
+				Patient p1 = enterInfo();
+				dao.addNewPerson(p1);
+				System.out.println("New Health Supporter Added!! Make sure your patient adds you!!");
+				break;
 		}
-		
-		dao.addNewPatient(p);
-		
-		System.out.println("New Patient Added!!");
 		startMenu();
 	}
 	
@@ -350,7 +374,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("---------------------");
 		int selection = Integer.parseInt(console.nextLine());
 		while(selection - 1 >= size){
-			System.out.println("Invalid seletion, choose again");
+			System.out.println("Invalid selection, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
@@ -734,7 +758,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 		int selection = Integer.parseInt(console.nextLine());
 		while(selection - 1 >= hs.size()){
-			System.out.println("Invalid seletion, choose again");
+			System.out.println("Invalid selection, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
@@ -745,9 +769,57 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("Select a Health Supporter to Add");
 		System.out.println("---------------------");
 		//TODO add HS
+		ArrayList<HealthSupporter> hs = dao.getPossibleHS(p);
+		for(int i = 0; i < hs.size(); i++){
+			HealthSupporter h = hs.get(i);
+			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		}
+		int selection = Integer.parseInt(console.nextLine());
+		while(selection - 1 >= hs.size()){
+			System.out.println("Invalid selection, choose again");
+			selection = Integer.parseInt(console.nextLine());
+		}
+		selection--;
+		HealthSupporter h = hs.get(selection);
+		addHSAlreadyPerson(h,p);
 	}
 	
 	
+	private static void addHSAlreadyPerson(HealthSupporter h, Patient p) {
+		System.out.println("Enter Date Auth Month (1-12): ");
+		int month = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Date Auth Day: ");
+		int day = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Date Auth Year: ");
+		int year = Integer.parseInt(console.nextLine());
+		
+		String date = year + "-" + month + "-" + day;
+		java.sql.Date dat = java.sql.Date.valueOf(date);
+		h.setDateAuthorized(dat);
+		
+		System.out.println("Enter Date Unauth Month (1-12): ");
+		int month1 = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Date Unauth Day: ");
+		int day1 = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Date Unauth Year: ");
+		int year1 = Integer.parseInt(console.nextLine());
+		
+		String date1 = year1 + "-" + month1 + "-" + day1;
+		java.sql.Date dat1 = java.sql.Date.valueOf(date1);
+		h.setDateUnauthorized(dat1);
+		h.setSupportingPatientID(p.getSsn());
+		
+		try {
+			dao.addHSAlreadyPerson(h);
+		} catch (SQLException e) {
+			if(e.getErrorCode()==-20001) {
+				System.out.println("Error! You cannot have more than 2 Health Supporters!");
+			} else {
+				e.printStackTrace();
+			}
+		}
+	}
+
 	private static void removeHS(Patient p){
 		System.out.println("Select a Health Supporters to Remove");
 		System.out.println("---------------------");
@@ -759,7 +831,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 		int selection = Integer.parseInt(console.nextLine());
 		while(selection - 1 >= hs.size()){
-			System.out.println("Invalid seletion, choose again");
+			System.out.println("Invalid selection, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
@@ -828,7 +900,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("---------------------");
 		int selection = Integer.parseInt(console.nextLine());
 		while(selection - 1 >= size){
-			System.out.println("Invalid seletion, choose again");
+			System.out.println("Invalid selection, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
@@ -853,7 +925,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		
 		int selection = Integer.parseInt(console.nextLine());
 		while(selection - 1 >= s){
-			System.out.println("Invalid seletion, choose again");
+			System.out.println("Invalid selection, choose again");
 			selection = Integer.parseInt(console.nextLine());
 		}
 		selection--;
@@ -1082,11 +1154,11 @@ public class PersonalHealthManagementDatabaseApplication {
 					newP.setPhoneNum(phone);
 					break;
 				case 4:
-					System.out.println("Enter DOB Month (1-12): ");
+					System.out.println("Enter Date Auth Month (1-12): ");
 					int month = Integer.parseInt(console.nextLine());
-					System.out.println("Enter DOB Day: ");
+					System.out.println("Enter Date Auth Day: ");
 					int day = Integer.parseInt(console.nextLine());
-					System.out.println("Enter DOB Year: ");
+					System.out.println("Enter Date Auth Year: ");
 					int year = Integer.parseInt(console.nextLine());
 					
 					String date = year + "-" + month + "-" + day;
@@ -1094,11 +1166,11 @@ public class PersonalHealthManagementDatabaseApplication {
 					newP.setDateAuthorized(dat);
 					break;
 				case 5:
-					System.out.println("Enter DOB Month (1-12): ");
+					System.out.println("Enter Date Unauth Month (1-12): ");
 					int month1 = Integer.parseInt(console.nextLine());
-					System.out.println("Enter DOB Day: ");
+					System.out.println("Enter Date Unauth Day: ");
 					int day1 = Integer.parseInt(console.nextLine());
-					System.out.println("Enter DOB Year: ");
+					System.out.println("Enter Date Unauth Year: ");
 					int year1 = Integer.parseInt(console.nextLine());
 					
 					String date1 = year1 + "-" + month1 + "-" + day1;
