@@ -183,6 +183,35 @@ SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
 from Health_Observation_Type h, Recommendation r, PATIENT p
 where h.Hot_Id = r.Rec_HOT_Type AND p.Pat_Person=r.Rec_HS_Patient;
 
+--All HoT for a particular patient --- START ---
+
+with tmp as
+(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h, Recommendation r, PATIENT p
+where h.Hot_Id = r.Rec_HOT_Type AND p.Pat_Person=r.Rec_HS_Patient
+UNION
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h
+where h.Hot_Disease IN (select d.Di_DiseaseName from PATIENT p, Diagnosis d where d.Di_Patient=p.Pat_Person)
+            AND 
+            h.Hot_Id NOT IN (
+                             SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN (
+                                  SELECT h.Hot_Name
+                                from Health_Observation_Type h, Recommendation r, PATIENT p
+                                where h.Hot_Id = r.Rec_HOT_Type AND p.Pat_Person=r.Rec_HS_Patient
+                                                    ))
+select * from tmp
+union
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h, tmp
+where h.Hot_Disease IS NULL AND h.Hot_Name NOT IN (SELECT hot_name from tmp);
+
+--All HoT for a particular patient --- END ---
+
+SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency
+from Health_Observation_Type h, Recommendation r, PATIENT p, Diagnosis d
+
+
 -- Test query
 select hot_name, hot_disease from Health_Observation_Type h where h.hot_name='Weight';
 
