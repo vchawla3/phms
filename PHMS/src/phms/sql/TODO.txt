@@ -1,10 +1,8 @@
 ## CSC540 Constraints 
-- [ ] Sick patients are required to have at least one Health Supporter
-- [ ] No patient can have more than two health supporters
-- [ ] No paitent can support themselves
-- [ ] Every sick patient should have at least one disease
-- [ ] Sick patients (or HS) must answer their recommendations???
-
+- [-] Sick patients are required to have at least one Health Supporter
+- [x] No patient can have more than two health supporters
+- [x] No paitent can support themselves -- handled with trigger
+- [x] Every sick patient should have at least one disease
 
 ## Trigger
 - [ ] (Generate alerts) check to see if they have missed a recommendation [based on

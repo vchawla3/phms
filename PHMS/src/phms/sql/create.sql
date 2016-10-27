@@ -37,20 +37,29 @@ CREATE TABLE Diagnosis (
 	CONSTRAINT Di_D FOREIGN KEY(Di_DiseaseName) REFERENCES Disease(Dis_DiseaseName)
 );
 CREATE OR REPLACE TRIGGER Di_PatMustBeSick
-AFTER INSERT ON Diagnosis
-FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
+BEFORE INSERT 
+    ON Diagnosis
+    REFERENCING OLD as DI_OLD NEW as Di_NEW
+    FOR EACH ROW 
 BEGIN
-	UPDATE Patient SET Pat_Sick = 1 WHERE Pat_Person = :NEW.Di_Patient;
+    UPDATE Patient Set PAT_SICK = 1 where PAT_PERSON = :Di_New.Di_Patient;
 END;
 /
 CREATE OR REPLACE TRIGGER Di_PatMustBeWell
-AFTER DELETE OR UPDATE ON Diagnosis
-FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
+AFTER DELETE 
+    ON Diagnosis
+    Referencing OLD as DI_OLD
+    FOR EACH ROW 
+Declare
+    numDisease Number :=0;
 BEGIN
-	IF ((SELECT COUNT(*) FROM Diagnosis d Where d.Di_Patient = :OLD.Di_Patient) = 0) THEN
-        UPDATE Patient SET Pat_Sick = 0 WHERE Pat_Person = :OLD.Di_Patient;
+    SELECT DI_PATIENT into numDisease
+    from Diagnosis 
+    Where Di_Patient = :DI_OLD.Di_Patient;
+
+    IF (numDisease < 1) THEN
+        UPDATE Patient SET Pat_Sick = 0 WHERE Pat_Person = :DI_OLD.Di_Patient;
     END IF;
-	
 END;
 /
 CREATE OR REPLACE TRIGGER Di_PatMustHaveHS
@@ -157,3 +166,23 @@ BEGIN
   END IF;
 END;
 \
+
+-- Trigger preventing users from having more than two health supporters
+CREATE OR REPLACE TRIGGER TWO_SUPPORTERS_MAX
+BEFORE INSERT OR UPDATE ON Health_Supporter 
+REFERENCING OLD AS HS_OLD  NEW AS HS_NEW
+For Each Row
+Declare
+    CountOfSupporters Number(2);
+BEGIN
+    SELECT 
+        count(HS_Patient) INTO CountOfSupporters 
+    from Health_Supporter 
+    where HS_Patient = :HS_NEW.HS_PATIENT;
+
+    IF( CountOfSupporters >= 2) THEN
+        raise_application_error(-20001, 'A patient may only have up to two supporters.');
+    END IF;
+END;
+/
+
