@@ -13,11 +13,11 @@ import java.sql.PreparedStatement;
 public class PHMSDao {
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-	//static final String DBuser = "aapatel8";
-	//static final String DBpassword = "200005768";
+	static final String DBuser = "aapatel8";
+	static final String DBpassword = "200005768";
 	
-	static final String DBuser = "vchawla3";
-	static final String DBpassword = "200006054";
+	//static final String DBuser = "vchawla3";
+	//static final String DBpassword = "200006054";
 	
 	public PHMSDao(){
 		try{
@@ -299,8 +299,8 @@ public class PHMSDao {
 		ArrayList<Alert> as = new ArrayList<Alert>();
 		try{
 			conn = openConnection();
-			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h"
-					+ "WHERE a.AL_READ = 0 AND a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
+			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h "
+					+ "WHERE a.AL_READ = 0 AND a.Al_HS_Patient = ? AND a.Al_HOT_Type = h.Hot_Id "
 					+ "ORDER BY a.Al_Sent";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
@@ -361,7 +361,9 @@ public class PHMSDao {
 		try{
 			conn = openConnection();
 			String SQL = "SELECT * FROM PERSON p, Patient p, Health_Supporter h "
-					+ "WHERE p.Pat_Person = h.HS_Patient AND h.HS_Supporter = ?";
+					+ "WHERE p.Pat_Person = h.HS_Patient AND h.HS_Supporter = ? "
+					+ "AND h.HS_DateAuthorized >= TRUNC(SYSDATE) "
+					+ "AND (h.HS_DateUnauthorized < TRUNC(SYSDATE) OR IS NULL(h.HS_DateUnauthorized)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, h.getSsn());
 			rs = stmt.executeQuery();
@@ -412,7 +414,7 @@ public class PHMSDao {
 		PreparedStatement stmt = null;
 		try{
 			conn = openConnection();
-			String SQL = "DELETE FROM HealthSupporter WHERE HS_Supporter = ?, HS_Patient = ?";
+			String SQL = "DELETE FROM Health_Supporter WHERE HS_Supporter = ? AND HS_Patient = ?";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, h.getSsn());
 			stmt.setLong(2, ssn);
@@ -436,7 +438,7 @@ public class PHMSDao {
 		PreparedStatement stmt = null;
 		try{
 			conn = openConnection();
-			String SQL = "DELETE FROM PatientDisease WHERE Pd_Patient = ?, Pd_DiseaseName = ?";
+			String SQL = "DELETE FROM Diagnosis pd WHERE Di_Patient = ? AND Di_DiseaseName = ?";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, ssn);
 			stmt.setString(2, dis);
@@ -868,7 +870,12 @@ public class PHMSDao {
 			stmt.setFloat(1,  h.getSsn());
 			stmt.setFloat(2, h.getSupportingPatientID());
 			stmt.setDate(3, h.getDateAuthorized());
-			stmt.setDate(4, h.getDateUnauthorized());
+			if (h.getDateUnauthorized() == null){
+				stmt.setNull(4,java.sql.Types.DATE);
+			} else {
+				stmt.setDate(4, h.getDateUnauthorized());
+			}
+			
 			stmt.executeUpdate();	
 			return true;
 		} catch(SQLException e){
@@ -928,13 +935,17 @@ public class PHMSDao {
 //  			    long s = rs.getLong("Di_Patient");
 //  			    System.out.println(s+":"+p);
 //  			}
-  			
-  			rs = stmt.executeQuery("SELECT * FROM Patient");
+  			rs = stmt.executeQuery("SELECT table_name FROM user_tables");
   			while (rs.next()) {
-  				long i  = rs.getLong("Pat_Person");
-  			    //long i = rs.getLong("HS_Supporter");
-  			    System.out.println(i);
+  				System.out.println(rs.getString("table_name"));
   			}
+  			
+//  			rs = stmt.executeQuery("SELECT * FROM Patient");
+//  			while (rs.next()) {
+//  				long i  = rs.getLong("Pat_Person");
+//  			    //long i = rs.getLong("HS_Supporter");
+//  			    System.out.println(i);
+//  			}
   			return true;
   		} catch(SQLException e){
   			e.printStackTrace();
@@ -1022,7 +1033,6 @@ public class PHMSDao {
   		try{
   			conn = openConnection();
   			stmt = conn.createStatement();
-  			
   			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
   								+ "WHERE p.Per_Id = pa.Pat_Person AND"
   								+ "2 = (SELECT COUNT(*) FROM Health_Supporter h WHERE"
@@ -1031,7 +1041,7 @@ public class PHMSDao {
   				Patient pa = new Patient(rs);
   				p.add(pa);
   			}
-  			
+
   		} catch(SQLException e){
   			e.printStackTrace();
   		} finally {

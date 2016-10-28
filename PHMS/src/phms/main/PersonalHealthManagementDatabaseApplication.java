@@ -557,24 +557,36 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Alerts");
 		ArrayList<Alert> alerts = dao.getPatientAlerts(p);
 		int size = alerts.size();
-		for(int i = 0; i < size; i++){
-			Alert a = alerts.get(i);
-			System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
-			//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+		if (size == 0) {
+			System.out.println("No Alerts!");
+			System.out.println("");
+		} else {
+			for(int i = 0; i < size; i++){
+				Alert a = alerts.get(i);
+				System.out.println((i+1) +": " + a.getSent().toString() + " - " + a.getHOType() + " - " + a.getAlert());
+				//System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
+			}
+			System.out.println("");
+			
+			//TODO Clearing Alerts
+			if(h==null){
+				System.out.println("Want to clear an alert?");
+				System.out.println("Select an Alert from above to Clear");
+				//if it is a freq alert, allow them to clear, otherwise have them enter HO
+				patientMenu(p);
+			} else {
+				System.out.println("Want to clear an alert?");
+				System.out.println("Select an Alert from above to Clear");
+				
+				
+				//dao.clearAlert(alerts.get(input));
+				hsMenu(h);
+			}
+			
 		}
-
-		//TODO Clearing Alerts
 		if(h==null){
-			System.out.println("Want to clear an alert?");
-			System.out.println("Select an Alert from above to Clear");
-			//if it is a freq alert, allow them to clear, otherwise have them enter HO
 			patientMenu(p);
 		} else {
-			System.out.println("Want to clear an alert?");
-			System.out.println("Select an Alert from above to Clear");
-			
-			
-			//dao.clearAlert(alerts.get(input));
 			hsMenu(h);
 		}
 	}
@@ -746,6 +758,8 @@ public class PersonalHealthManagementDatabaseApplication {
 			HealthSupporter h = hs.get(i);
 			System.out.println((i+1) + ": " + h.getFname() + " " + h.getLname());
 		}
+		System.out.println("---------------------");
+		System.out.println();
 	}
 	private static void editHS(Patient p){
 		System.out.println("Select a Health Supporters to Edit");
@@ -768,7 +782,6 @@ public class PersonalHealthManagementDatabaseApplication {
 	private static void addHS(Patient p){
 		System.out.println("Select a Health Supporter to Add");
 		System.out.println("---------------------");
-		//TODO add HS
 		ArrayList<HealthSupporter> hs = dao.getPossibleHS(p);
 		for(int i = 0; i < hs.size(); i++){
 			HealthSupporter h = hs.get(i);
@@ -797,16 +810,28 @@ public class PersonalHealthManagementDatabaseApplication {
 		java.sql.Date dat = java.sql.Date.valueOf(date);
 		h.setDateAuthorized(dat);
 		
-		System.out.println("Enter Date Unauth Month (1-12): ");
-		int month1 = Integer.parseInt(console.nextLine());
-		System.out.println("Enter Date Unauth Day: ");
-		int day1 = Integer.parseInt(console.nextLine());
-		System.out.println("Enter Date Unauth Year: ");
-		int year1 = Integer.parseInt(console.nextLine());
+		System.out.println("Enter Date Unauthorized (Y/N)? ");
+		String yn = console.nextLine();
+		while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
+			System.out.println("Enter Y or N? ");
+			yn = console.nextLine();
+		}
+		if (yn.equalsIgnoreCase("y")){
+			System.out.println("Enter Date Unauth Month (1-12): ");
+			int month1 = Integer.parseInt(console.nextLine());
+			System.out.println("Enter Date Unauth Day: ");
+			int day1 = Integer.parseInt(console.nextLine());
+			System.out.println("Enter Date Unauth Year: ");
+			int year1 = Integer.parseInt(console.nextLine());
+			
+			String date1 = year1 + "-" + month1 + "-" + day1;
+			java.sql.Date dat1 = java.sql.Date.valueOf(date1);
+			h.setDateUnauthorized(dat1);
+		} else {
+			h.setDateUnauthorized(null);
+		}
 		
-		String date1 = year1 + "-" + month1 + "-" + day1;
-		java.sql.Date dat1 = java.sql.Date.valueOf(date1);
-		h.setDateUnauthorized(dat1);
+		
 		h.setSupportingPatientID(p.getSsn());
 		
 		try {
@@ -932,6 +957,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		String dis = patientsDiseases.get(selection);
 		try {
 			dao.removeDiseaseForPatient(p.getSsn(),dis);
+			System.out.println("Disease Removed!");
 		} catch (SQLException e) {
 			e.printStackTrace();
 		}
@@ -939,11 +965,13 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void showPatientDiseases(Patient p){
-		if (p.isSick() == 1){
-			ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
+		ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
+		int s = patientsDiseases.size();
+		if (s != 0){
+			
 			System.out.println(p.getFname() + " " + p.getLname() + "'s Diseases!");
 			System.out.println("---------------------");
-			int s = patientsDiseases.size();
+			
 			if (s == 0){
 				System.out.println("No Diseases!");
 			} else {
@@ -954,7 +982,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			
 			System.out.println("---------------------");
 		} else {
-			System.out.println(p.getFname() + " " + p.getLname() + " is Well, so no diseases!");
+			System.out.println(p.getFname() + " " + p.getLname() + " has no diseases!");
 			System.out.println("---------------------");
 		}
 	}
@@ -1111,7 +1139,7 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void editHSUI(){
-		System.out.println("Edit Health Supporter");
+		//System.out.println("Edit Health Supporter");
 		System.out.println("---------------------");
 		System.out.println("1. Set First Name");
 		System.out.println("2. Set Last Name");
@@ -1129,6 +1157,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		boolean stay;
 		HealthSupporter newP = p;
 		do{
+			System.out.println("Edit " + p.getFname() + " " + p.getLname() + "'s HS Info");
 			editHSUI();
 			stay = true;
 			int input;
