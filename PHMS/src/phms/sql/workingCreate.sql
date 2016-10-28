@@ -48,6 +48,27 @@ BEGIN
 END;
 /
 
+CREATE OR REPLACE TRIGGER Di_PatMustBeWell
+AFTER DELETE OR UPDATE ON Diagnosis
+FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
+BEGIN
+	IF ((SELECT COUNT(*) FROM Diagnosis d Where d.Di_Patient = :OLD.Di_Patient) = 0) THEN
+        UPDATE Patient SET Pat_Sick = 0 WHERE Pat_Person = :OLD.Di_Patient;
+    END IF;
+	
+END;
+/
+
+CREATE OR REPLACE TRIGGER Di_PatMustHaveHS
+BEFORE INSERT OR UPDATE ON Diagnosis
+FOR EACH ROW WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
+BEGIN
+	IF ((SELECT COUNT(*) FROM Health_Supporter h Where h.HS_Patient = :NEW.Di_Patient) = 0) THEN
+        raise_application_error(-20101, 'User Requires a Health Supporter');
+    END IF;
+END;
+/
+
 CREATE TABLE Health_Observation_Type(
     Hot_Id NUMBER(16),
     Hot_Name VARCHAR(255),

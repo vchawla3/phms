@@ -9,10 +9,11 @@ CREATE TABLE Person (
     Per_Password VARCHAR(16),
     CONSTRAINT Person_PK PRIMARY KEY(Per_Id)
 );
--- Add the day patient fell sick
+
 CREATE TABLE PATIENT(
     Pat_Person NUMBER(16),
     Pat_Sick NUMBER(1),
+    Pat_FeltSickOn DATE,
     CONSTRAINT PATIENT_PK PRIMARY KEY (Pat_Person),
     CONSTRAINT PATIENT_FK FOREIGN KEY (Pat_Person) REFERENCES Person(Per_Id)
 );
@@ -96,7 +97,7 @@ CREATE TABLE Health_Observation(
     Ho_ObservationType Number(16),
     Ho_Value Number(16),
     Ho_ObservedDateTime Date,
-    Ho_RecordedDateTime Date,
+    Ho_RecordedDateTime Date default sysdate,
     CONSTRAINT HO_PK PRIMARY KEY (Ho_Patient, Ho_ObservationType, Ho_ObservedDateTime, Ho_RecordedDateTime),
     CONSTRAINT HO_P_FK FOREIGN KEY (Ho_Patient) REFERENCES Patient(Pat_Person),
     CONSTRAINT HO_HOT_FK FOREIGN KEY (Ho_ObservationType) REFERENCES Health_Observation_Type(Hot_Id)
