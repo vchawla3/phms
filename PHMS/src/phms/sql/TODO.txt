@@ -11,6 +11,11 @@
 ## Notes
 - [x] Health Observations need to be inserted with a date that isn't NOW()
 
+## Front End
+- [] HS Adding recommendations
+- [] Patient clearing alerts
+- [] Printing out the HOT Type (Recommended, Diseases, or Generic) for a patient
+
 ## SQL Queries
 - [x] Find patients who belong to more than one sick patient class (that have more
       than one disease)

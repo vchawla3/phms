@@ -482,7 +482,7 @@ public class PersonalHealthManagementDatabaseApplication {
 						dao.editHSNoPatient(newP);
 						System.out.println("Patient Updated!");
 					} catch (SQLException e) {
-						// TODO Auto-generated catch block						
+										
 						e.printStackTrace();
 						System.out.println("Error! Patient Not Updated!");
 					}
@@ -569,20 +569,41 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.println("");
 			
 			//TODO Clearing Alerts
-			if(h==null){
-				System.out.println("Want to clear an alert?");
-				System.out.println("Select an Alert from above to Clear");
-				//if it is a freq alert, allow them to clear, otherwise have them enter HO
-				patientMenu(p);
-			} else {
-				System.out.println("Want to clear an alert?");
-				System.out.println("Select an Alert from above to Clear");
-				
-				
-				//dao.clearAlert(alerts.get(input));
-				hsMenu(h);
+			System.out.println("Want to clear an alert (Y/N)?");
+			String yn = console.nextLine();
+			while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
+				System.out.println("Enter Y or N? ");
+				yn = console.nextLine();
 			}
 			
+			if (yn.equalsIgnoreCase("y")){
+				System.out.println("Select an Alert from above to Clear");
+				int selection = Integer.parseInt(console.nextLine());
+				while(selection - 1 >= size){
+					System.out.println("Invalid selection, choose again");
+					selection = Integer.parseInt(console.nextLine());
+				}
+				selection--;
+				Alert a1 = alerts.get(selection);
+				if(h==null){
+					//if it is a freq alert, allow them to clear, otherwise have them enter HO... 
+					String alert = a1.getAlert();
+					if (alert.contains("is not in the specified range")) {
+						
+					}
+				} else {
+					//Because HS is logged in, just clear alert :)
+					try {
+						dao.clearAlert(a1);
+						System.out.println("Alert Cleared!");
+					} catch (SQLException e) {
+						
+						e.printStackTrace();
+					}
+				}
+			} else {
+				System.out.println("Back to Menu");
+			}
 		}
 		if(h==null){
 			patientMenu(p);
@@ -702,7 +723,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		try {
 			dao.addHealthObservation(ho);
 		} catch (SQLException e) {
-			// TODO Auto-generated catch block
+			
 			e.printStackTrace();
 		}
 		return;
