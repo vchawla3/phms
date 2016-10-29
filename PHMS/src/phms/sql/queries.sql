@@ -303,3 +303,11 @@ from
     Alert
 where
     Al_Alert like '%frequency%%';
+
+-- Example query using function to delete a row from diagnosis.
+declare
+    x number;
+begin
+    x := deleteDiagnosis('HIV', 2);
+end;
+/

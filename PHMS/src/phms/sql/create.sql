@@ -46,23 +46,6 @@ BEGIN
     UPDATE Patient Set PAT_SICK = 1 where PAT_PERSON = :Di_New.Di_Patient;
 END;
 /
-CREATE OR REPLACE TRIGGER Di_PatMustBeWell
-AFTER DELETE 
-    ON Diagnosis
-    Referencing OLD as DI_OLD
-    FOR EACH ROW 
-Declare
-    numDisease Number :=0;
-BEGIN
-    SELECT DI_PATIENT into numDisease
-    from Diagnosis 
-    Where Di_Patient = :DI_OLD.Di_Patient;
-
-    IF (numDisease < 1) THEN
-        UPDATE Patient SET Pat_Sick = 0 WHERE Pat_Person = :DI_OLD.Di_Patient;
-    END IF;
-END;
-/
 CREATE OR REPLACE TRIGGER Di_PatMustHaveHS
 BEFORE INSERT OR UPDATE ON Diagnosis
 FOR EACH ROW 
@@ -195,4 +178,25 @@ BEGIN
     END IF;
 END;
 /
-
+create or replace function deleteDiagnosis(DiseaseName varchar, Patient number) return number is
+    rows_ number;
+    di_patient number;
+    Numdiseases number;
+begin
+    <<del>> begin 
+        delete Diagnosis where Di_Patient= deleteDiagnosis.Patient AND Di_DiseaseName= deleteDiagnosis.DiseaseName
+        returning Diagnosis.di_patient into deleteDiagnosis.di_patient
+        ;
+        rows_ := sql%rowcount;
+        if rows_ > 1 then raise too_many_rows; end if;
+    end del;
+    select count(1) into deleteDiagnosis.numDiseases from Diagnosis where Di_Patient = deleteDiagnosis.di_patient;
+    if deleteDiagnosis.numdiseases = 0 then <<upd>> begin 
+        update Patient set Pat_Sick = 0 where Pat_Person = deleteDiagnosis.di_patient;
+        exception when others then 
+            dbms_output.put_line('Cannot update Patient di_patient='||di_patient);
+            raise;
+    end upd; end if;
+    return rows_;
+end;
+/
