@@ -171,7 +171,10 @@ BEGIN
     SELECT 
         count(HS_Patient) INTO CountOfSupporters 
     from Health_Supporter 
-    where HS_Patient = :HS_NEW.HS_PATIENT;
+    where 
+        HS_Patient = 1 AND 
+        HS_DateAuthorized <= SYSDATE AND
+        (HS_DateUnAuthorized IS NULL OR HS_DateUnAuthorized >= SYSDATE);
 
     IF( CountOfSupporters >= 2) THEN
         raise_application_error(-20001, 'A patient may only have up to two supporters.');
