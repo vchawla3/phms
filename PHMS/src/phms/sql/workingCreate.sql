@@ -113,24 +113,24 @@ CREATE TABLE Recommendation(
 );
 
 CREATE TABLE ALERT(
-    Al_HS_Supporter NUMBER(16),
     Al_HS_Patient Number(16),
     Al_HOT_Type Number(16),
     Al_Read Number(1),
     Al_Sent Date,
     Al_Alert VARCHAR(999),
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, AL_Sent),
-    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_HOT_Type)
+    Al_Sys Date DEFAULT SYSDATE,
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Patient, Al_Sys, Al_HOT_Type),
+    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Patient) REFERENCES Person(Per_Id),
+    CONSTRAINT ALERT_FK_H FOREIGN KEY (Al_HOT_Type) REFERENCES Health_Observation_Type(Hot_Id)
 );
 
-CREATE OR REPLACE TRIGGER ALERT_RANGE 
-AFTER INSERT OR UPDATE OF HO_VALUE ON HEALTH_OBSERVATION 
-REFERENCING OLD AS HO_OLD NEW AS HO_NEW 
+CREATE OR REPLACE TRIGGER ALERT_RANGE
+AFTER INSERT OR UPDATE OF HO_VALUE ON HEALTH_OBSERVATION
+REFERENCING NEW AS HO_NEW
 FOR EACH ROW
-DECLARE 
-    u_limit NUMBER(16); 
+DECLARE
+    u_limit NUMBER(16);
     l_limit NUMBER(16);
-    HS_support NUMBER(16);
     out_of_bounds NUMBER(16) := 1;
 BEGIN
   select Hot_UpperLimit, Hot_LowerLimit INTO u_limit, l_limit FROM Health_Observation_Type
@@ -138,9 +138,8 @@ BEGIN
   IF (:HO_NEW.Ho_Value > l_limit AND :HO_NEW.Ho_Value < u_limit) THEN
       out_of_bounds := 0;
   END IF;
-  select HS_Supporter INTO HS_support FROM Health_Supporter
-  WHERE :HO_NEW.Ho_Patient = Health_Supporter.HS_Patient;
   IF (out_of_bounds = 1) THEN
-    INSERT INTO ALERT VALUES (HS_support, :HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'));
+    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'), SYSDATE);
   END IF;
 END;
+/
