@@ -9,7 +9,7 @@
   frequency]
 
 ## Notes
-- [ ] Health Observations need to be inserted with a date that isn't NOW()
+- [x] Health Observations need to be inserted with a date that isn't NOW()
 
 ## SQL Queries
 - [x] Find patients who belong to more than one sick patient class (that have more
@@ -29,5 +29,5 @@
 - [x] List the patients who are not ‘sick’.
 - [x] How many patients have different observation time and recording time (of the observation).
 - [x] List the health supporters who themselves are patients.
-- [ ] Give the number of patients who were not complying with the recommended frequency of recording observations.
+- [-] Give the number of patients who were not complying with the recommended frequency of recording observations.
 - [x] List the number of health supporters that were authorized in the month of September 2016 by patients suffering from heart disease.
