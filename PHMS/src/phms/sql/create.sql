@@ -120,14 +120,15 @@ CREATE TABLE Recommendation(
     CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_HOT_Type) references Health_Observation_Type(HoT_Id)
 );
 CREATE TABLE ALERT(
-    Al_HS_Supporter NUMBER(16),
     Al_HS_Patient Number(16),
     Al_HOT_Type Number(16),
     Al_Read Number(1),
     Al_Sent Date,
     Al_Alert VARCHAR(999),
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Supporter, Al_HS_Patient, AL_Sent),
-    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Supporter, Al_HS_Patient, Al_HOT_Type) REFERENCES Recommendation(Rec_HS_Supporter, Rec_HS_Patient, Rec_HOT_Type)
+    Al_Sys Date DEFAULT SYSDATE,
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Patient, Al_Sys, Al_HOT_Type),
+    CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_HS_Patient) REFERENCES Person(Per_Id),
+    CONSTRAINT ALERT_FK_H FOREIGN KEY (Al_HOT_Type) REFERENCES Health_Observation_Type(Hot_Id)
 );
 
 /*
