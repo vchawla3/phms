@@ -158,7 +158,7 @@ BEGIN
     INSERT INTO ALERT VALUES (HS_support, :HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'));
   END IF;
 END;
-\
+/
 
 -- Trigger preventing users from having more than two health supporters
 CREATE OR REPLACE TRIGGER TWO_SUPPORTERS_MAX
@@ -171,7 +171,10 @@ BEGIN
     SELECT 
         count(HS_Patient) INTO CountOfSupporters 
     from Health_Supporter 
-    where HS_Patient = :HS_NEW.HS_PATIENT;
+    where 
+        HS_Patient = :HS_OLD.HS_PATIENT AND 
+        HS_DateAuthorized <= SYSDATE AND
+        (HS_DateUnAuthorized IS NULL OR HS_DateUnAuthorized >= SYSDATE);
 
     IF( CountOfSupporters >= 2) THEN
         raise_application_error(-20001, 'A patient may only have up to two supporters.');
