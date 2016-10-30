@@ -304,6 +304,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		String input = console.nextLine();
 		if (input.equalsIgnoreCase("y")){
 			addRec(h,p);
+			hsMenu(h);
 		} else if (input.equalsIgnoreCase("n")){
 			hsMenu(h);
 		} else {
@@ -314,7 +315,104 @@ public class PersonalHealthManagementDatabaseApplication {
 	private static void addRec(HealthSupporter h, Patient p) {
 		System.out.println("---------------------");
 		System.out.println("New Recommendation");
-		//TODO add rec
+		HealthObservationType ht = new HealthObservationType();
+		
+		//add rec
+		System.out.println("Select the type of Health Observation?");
+		ArrayList<String> names = dao.listOfHOTNames();
+		int size = names.size();
+		for(int i = 0; i < size; i++){
+			System.out.println((i+1) +": " + names.get(i));
+		}
+		int input;
+		try{
+			input = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		input--;
+		if (input >= size) {
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		ht.setName(names.get(input));
+		
+		if (p.isSick() == 1){
+			System.out.println("Select disease this recommendation is for.");
+			ArrayList<String> patientsDiseases = dao.getPatientsDiseases(p.getSsn());
+			int s = patientsDiseases.size();
+			for (int i = 0; i < s; i++) {
+				System.out.println((i+1) + ": "+ patientsDiseases.get(i));
+			}
+			System.out.println((s+1) + ": Not For a Disease");
+			int inp;
+			try{
+				inp = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				System.out.println("Invalid Input back to Menu");
+				return;
+			}
+			inp--;
+			if (inp > size) {
+				System.out.println("Invalid Input back to Menu");
+				return;
+			} else if (inp == size) {
+				ht.setDisease(null);
+			} else {
+				ht.setDisease(patientsDiseases.get(inp));
+			}
+		} else {
+			ht.setDisease(null);
+		}
+		
+		if (ht.getName().equals("Pain") || ht.getName().equals("Mood")){
+			ht.setLower(-1);
+			System.out.println("Only Set Upper Limit (If Mood enter 1-3 for Happy (1), Neutral (2), Sad (3) and if Pain enter 1-10)");
+			int limit;
+			try{
+				limit = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				System.out.println("Invalid Input back to Menu");
+				return;
+			}
+			ht.setUpper(limit);
+		} else {
+			System.out.println("Set Lower Limit");
+			int upp;
+			try{
+				upp = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				System.out.println("Invalid Input back to Menu");
+				return;
+			}
+			ht.setUpper(upp);
+			System.out.println("Set Upper Limit");
+			int limit;
+			try{
+				limit = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				System.out.println("Invalid Input back to Menu");
+				return;
+			}
+			ht.setUpper(limit);
+		}
+		
+		System.out.println("Set Freq (# Days)");
+		int days;
+		try{
+			days = Integer.parseInt(console.nextLine());
+		} catch (NumberFormatException e){
+			System.out.println("Invalid Input back to Menu");
+			return;
+		}
+		ht.setFreq(days);
+		try {
+			dao.addRecomendation(ht, h, p);
+		} catch (SQLException e) {
+			e.printStackTrace();
+		}
+		
 		
 	}
 

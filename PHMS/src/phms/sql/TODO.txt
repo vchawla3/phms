@@ -1,5 +1,5 @@
 ## CSC540 Constraints 
-- [-] Sick patients are required to have at least one Health Supporter
+- [x] Sick patients are required to have at least one Health Supporter
 - [x] No patient can have more than two health supporters
 - [x] No paitent can support themselves -- handled with trigger
 - [x] Every sick patient should have at least one disease
@@ -12,8 +12,8 @@
 - [x] Health Observations need to be inserted with a date that isn't NOW()
 
 ## Front End
-- [] HS Adding recommendations
-- [] Patient clearing alerts
+- [x] HS Adding recommendations
+- [x] Patient clearing alerts
 - [] Printing out the HOT Type (Recommended, Diseases, or Generic) for a patient
 
 ## SQL Queries
