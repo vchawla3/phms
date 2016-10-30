@@ -162,7 +162,7 @@ END;
 
 -- Trigger preventing users from having more than two health supporters
 CREATE OR REPLACE TRIGGER TWO_SUPPORTERS_MAX
-BEFORE INSERT OR UPDATE ON Health_Supporter 
+BEFORE INSERT ON Health_Supporter 
 REFERENCING OLD AS HS_OLD  NEW AS HS_NEW
 For Each Row
 Declare
