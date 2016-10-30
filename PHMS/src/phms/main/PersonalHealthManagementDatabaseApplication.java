@@ -1017,6 +1017,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		try {
 			dao.addHSAlreadyPerson(h);
 		} catch (SQLException e) {
+			System.out.println("Error!");
 			if(e.getErrorCode()==-20001) {
 				System.out.println("Error! You cannot have more than 2 Health Supporters!");
 			} else {
@@ -1115,7 +1116,8 @@ public class PersonalHealthManagementDatabaseApplication {
 				p.setSick(1);
 			}
 		} catch (SQLException e) {
-			e.printStackTrace();
+			
+			//e.printStackTrace();
 		}
 	}
 

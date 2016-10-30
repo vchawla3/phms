@@ -18,7 +18,7 @@ public class Alert {
 		try{
 			setPatientId(rs.getLong("Al_PER_Patient"));
 			//setHSId(rs.getLong("Al_HS_Supporter"));
-			setHOTypeID(rs.getLong("Al_OBS_Type"));
+			setHOTypeID(rs.getLong("Al_HOT_Type"));
 			setHOType(rs.getString("Hot_Name"));
 			setRead(rs.getInt("Al_Read"));
 			setSent(rs.getDate("Al_Sent"));

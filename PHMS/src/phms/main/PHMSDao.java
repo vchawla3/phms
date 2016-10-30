@@ -12,18 +12,15 @@ import java.sql.PreparedStatement;
 //import phms.model.*;
 
 public class PHMSDao {
-//	static final String jdbcURL 
-//	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-//	static final String DBuser = "aapatel8";
-//	static final String DBpassword = "200005768";
 	
-	//static final String DBuser = "vchawla3";
-	//static final String DBpassword = "200006054";
-
 	static final String jdbcURL 
-	= "jdbc:oracle:thin:@127.0.0.1:1521:xe";
-	static final String DBuser = "csc540";
-	static final String DBpassword = "helloworld";
+	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
+	
+	static final String DBuser = "aapatel8";
+	static final String DBpassword = "200005768";
+	
+//	static final String DBuser = "vchawla3";
+//	static final String DBpassword = "200006054";
 	
 	public PHMSDao(){
 		try{
@@ -68,36 +65,41 @@ public class PHMSDao {
 	}
 	
 	public boolean addHealthObservation(HealthObservation ho) throws SQLException{
-		long hoID = findhoID(ho);
-		ho.setHoTypeId(hoID);
-		
-		Connection conn = null;
-		PreparedStatement stmt = null;
-		//ResultSet rs = null;
-		try{
-			conn = openConnection();
-			String SQL = "INSERT INTO Health_Observation VALUES(?,?,?,?,?)";
-			stmt = conn.prepareStatement(SQL);
-			stmt.setLong(1, ho.getPatientId());
-			stmt.setLong(2, ho.getHoTypeId());
-			stmt.setLong(3, ho.getValue());
-			stmt.setDate(4, ho.getObservedDate());
-			stmt.setDate(5, ho.getRecordedDate());
-			stmt.executeUpdate();
-			conn.commit();
-			return true;
-		} catch(SQLException e){
-			conn.rollback();
-			e.printStackTrace();
-			System.out.println(e.getMessage());
-			return false;
-		} finally {
-			close(stmt);
-            close(conn);
+		ArrayList<Long> ids = findhoID(ho);
+		for (int i = 0; i < ids.size(); i++) {
+			long hoID = ids.get(i);
+			ho.setHoTypeId(hoID);
+			
+			Connection conn = null;
+			PreparedStatement stmt = null;
+			//ResultSet rs = null;
+			try{
+				conn = openConnection();
+				String SQL = "INSERT INTO Health_Observation VALUES(?,?,?,?,?)";
+				stmt = conn.prepareStatement(SQL);
+				stmt.setLong(1, ho.getPatientId());
+				stmt.setLong(2, ho.getHoTypeId());
+				stmt.setLong(3, ho.getValue());
+				stmt.setDate(4, ho.getObservedDate());
+				stmt.setDate(5, ho.getRecordedDate());
+				stmt.executeUpdate();
+				conn.commit();
+			} catch(SQLException e){
+				conn.rollback();
+				e.printStackTrace();
+				System.out.println(e.getMessage());
+				return false;
+			} finally {
+				close(stmt);
+	            close(conn);
+			}
 		}
+		return true;
+		
 	}
-	private Long findhoID(HealthObservation h) {
-		long id;
+	private ArrayList<Long> findhoID(HealthObservation h) {
+		ArrayList<Long> ids = new ArrayList<Long>();
+		//long id;
 		Connection conn = null;
 		PreparedStatement stmt = null;
 		ResultSet rs = null;
@@ -111,7 +113,7 @@ public class PHMSDao {
 			stmt.setLong(2, h.getPatientId());
 			rs = stmt.executeQuery();
 			if (rs.next()) {
-				id = rs.getLong("Hot_Id");
+				ids.add(rs.getLong("Hot_Id"));
 			} else {
 				close(stmt);
 				close(rs);
@@ -123,7 +125,10 @@ public class PHMSDao {
 				stmt.setLong(2, h.getPatientId());
 				rs = stmt.executeQuery();
 				if(rs.next()) {
-					id = rs.getLong("Hot_Id");
+					ids.add(rs.getLong("Hot_Id"));
+					while (rs.next()){
+						ids.add(rs.getLong("Hot_Id"));
+					}
 				} else {
 					close(stmt);
 					close(rs);
@@ -134,10 +139,10 @@ public class PHMSDao {
 					stmt.setString(1, h.getHoType());
 					rs = stmt.executeQuery();
 					rs.next();
-					id = rs.getLong("Hot_Id"); 
+					ids.add(rs.getLong("Hot_Id")); 
 				}
 			}
-			return id;
+			return ids;
 		} catch(SQLException e){
 			e.printStackTrace();
 			System.out.println(e.getMessage());
@@ -232,10 +237,29 @@ public class PHMSDao {
   		ResultSet rs = null;
   		try{
   			conn = openConnection();
-  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r "
-  						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
+  			String SQL = "with tmp as "
+  					+ "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ? "
+  					+ "UNION "
+  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h "
+  					+ "where "
+  					+ "h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) "
+  					+ "AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) "
+  					+ "AND h.hot_name NOT IN (SELECT h.Hot_Name "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)) "
+  					+ "select * from tmp "
+  					+ "union "
+  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h "
+  					+ "where h.Hot_Disease IS NULL AND h.hot_name NOT IN(tmp)";
+
   			stmt = conn.prepareStatement(SQL);
   			stmt.setLong(1, p.getSsn());
+  			stmt.setLong(2, p.getSsn());
+  			stmt.setLong(3, p.getSsn());
   			rs = stmt.executeQuery();
   			while (rs.next()) {
   				HealthObservationType pa = new HealthObservationType(rs);
@@ -371,8 +395,8 @@ public class PHMSDao {
 			String SQL = "UPDATE Alert a SET "
 						+ "a.Al_Read = 1 "
 						+ "WHERE "
-						+ "a.Al_PER_Patient = ?,"
-						+ "a.Al_OBS_Type = ?";
+						+ "a.Al_PER_Patient = ? AND "
+						+ "a.Al_HOT_Type = ?";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, a.getPatientId());
 			stmt.setLong(2, a.getHOTypeID());
@@ -476,10 +500,11 @@ public class PHMSDao {
 		try{
 			conn = openConnection();
 			//Call stored proc to update patient table 
-			String call = "{ call deleteDiagnosis(?, ?) }";
+			String call = "{ ? = call deleteDiagnosis(?, ?) }";
 			stmt = conn.prepareCall(call);
-			stmt.setString(1, dis);
-			stmt.setLong(2, ssn);
+			stmt.registerOutParameter(1, oracle.jdbc.OracleTypes.NUMBER);
+			stmt.setString(2, dis);
+			stmt.setLong(3, ssn);
 			stmt.executeUpdate();
 			conn.commit();
 			return true;
@@ -509,8 +534,9 @@ public class PHMSDao {
 			return true;
 		} catch(SQLException e){
 			conn.rollback();
-			e.printStackTrace();
-			System.out.println(e.getMessage());
+			if(e.getErrorCode() == 00001){
+				System.out.println("Cannot add same disease twice");
+			}
 			return false;
 		} finally {
 			close(stmt);
