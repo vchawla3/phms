@@ -21,7 +21,13 @@ public class HealthObservationType {
 		setName(rs.getString("Hot_Name"));
 		setDisease(rs.getString("Hot_Disease"));
 		setUpper(rs.getLong("Hot_UpperLimit"));
+		if (rs.wasNull()){
+			setUpper(-1);
+		}
 		setLower(rs.getLong("Hot_LowerLimit"));
+		if (rs.wasNull()){
+			setLower(-1);
+		}
 		setFreq(rs.getLong("Hot_Frequency"));
 	}
 	

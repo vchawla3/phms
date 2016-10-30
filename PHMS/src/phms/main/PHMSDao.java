@@ -1,5 +1,6 @@
 package phms.main;
 
+import java.sql.CallableStatement;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -11,13 +12,18 @@ import java.sql.PreparedStatement;
 //import phms.model.*;
 
 public class PHMSDao {
-	static final String jdbcURL 
-	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
-	static final String DBuser = "aapatel8";
-	static final String DBpassword = "200005768";
+//	static final String jdbcURL 
+//	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
+//	static final String DBuser = "aapatel8";
+//	static final String DBpassword = "200005768";
 	
 	//static final String DBuser = "vchawla3";
 	//static final String DBpassword = "200006054";
+
+	static final String jdbcURL 
+	= "jdbc:oracle:thin:@127.0.0.1:1521:xe";
+	static final String DBuser = "csc540";
+	static final String DBpassword = "helloworld";
 	
 	public PHMSDao(){
 		try{
@@ -193,6 +199,32 @@ public class PHMSDao {
   		}
 	}
 	
+	public ArrayList<HealthObservationType> getHOTPrefs(Patient p){
+		ArrayList<HealthObservationType> hos = new ArrayList<HealthObservationType>();
+		Connection conn = null;
+  		PreparedStatement stmt = null;
+  		ResultSet rs = null;
+  		try{
+  			conn = openConnection();
+  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r "
+  						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
+  			stmt = conn.prepareStatement(SQL);
+  			stmt.setLong(1, p.getSsn());
+  			rs = stmt.executeQuery();
+  			while (rs.next()) {
+  				HealthObservationType pa = new HealthObservationType(rs);
+  				hos.add(pa);
+  			}
+  			return hos;
+  		} catch(SQLException e){  			
+  			e.printStackTrace();
+  			return null;
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
+	}
   	public ArrayList<HealthObservationType> getAllRecomendationsforPatient(Patient p){
   		ArrayList<HealthObservationType> hos = new ArrayList<HealthObservationType>();
   		Connection conn = null;
@@ -440,16 +472,15 @@ public class PHMSDao {
 	
 	public boolean removeDiseaseForPatient(long ssn, String dis) throws SQLException {
 		Connection conn = null;
-		PreparedStatement stmt = null;
+		CallableStatement stmt = null;
 		try{
 			conn = openConnection();
-			String SQL = "DELETE FROM Diagnosis pd WHERE Di_Patient = ? AND Di_DiseaseName = ?";
-			stmt = conn.prepareStatement(SQL);
-			stmt.setLong(1, ssn);
-			stmt.setString(2, dis);
-			stmt.executeUpdate();
-			//close(stmt);
 			//Call stored proc to update patient table 
+			String call = "{ call deleteDiagnosis(?, ?) }";
+			stmt = conn.prepareCall(call);
+			stmt.setString(1, dis);
+			stmt.setLong(2, ssn);
+			stmt.executeUpdate();
 			conn.commit();
 			return true;
 		} catch(SQLException e){

@@ -292,9 +292,17 @@ public class PersonalHealthManagementDatabaseApplication {
 			System.out.print("Disease: ");
 			System.out.println(ho.getDisease());
 			System.out.print("Upper Limit: ");
-			System.out.println(ho.getUpper());
+			if (ho.getUpper() == -1){
+				System.out.println("No Limit");
+			} else {
+				System.out.println(ho.getUpper());
+			}
 			System.out.print("Lower Limit: ");
-			System.out.println(ho.getLower());
+			if (ho.getLower() == -1){
+				System.out.println("No Limit");
+			} else {
+				System.out.println(ho.getLower());
+			}
 			System.out.print("Freq: ");
 			System.out.println(ho.getFreq());
 			System.out.println("---------------------");
@@ -735,6 +743,27 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println(p.getFname() + " " + p.getLname() + "'s Health Observation Prefs");
 		System.out.println("---------------------");
 		//TODO call dao for the HOT's and list em out here!!!!!!!
+		ArrayList<HealthObservationType> hts = dao.getHOTPrefs(p);
+		int s = hts.size();
+		for(int i = 0; i < s; i++){
+			HealthObservationType a = hts.get(i);
+			if (a.getName().equals("Mood")) {
+				String mood;
+				if (a.getUpper() == 1){
+					mood = "Happy";
+				} else if(a.getUpper() == 2){
+					mood = "Neutral";
+				} else {
+					mood = "Sad";
+				}
+				System.out.println((i+1) + "- Type: " + a.getName() + " Disease: " + a.getDisease() 
+									+ " Lower Limit: " + a.getLower() + " Upper Limit: " + mood + " Frequency: " + a.getFreq());
+				
+			} else {
+				System.out.println((i+1) + "- Type: " + a.getName() + " Disease: " + a.getDisease() 
+				+ " Lower Limit: " + a.getLower() + " Upper Limit: " + a.getUpper() + " Frequency: " + a.getFreq());
+			}
+		}
 		System.out.println("---------------------");
 		System.out.println();
 		
