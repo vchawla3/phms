@@ -369,10 +369,10 @@ public class PHMSDao {
 		ArrayList<Patient> ps = new ArrayList<Patient>();
 		try{
 			conn = openConnection();
-			String SQL = "SELECT * FROM PERSON p, Patient p, Health_Supporter h "
-					+ "WHERE p.Pat_Person = h.HS_Patient AND h.HS_Supporter = ? "
-					+ "AND h.HS_DateAuthorized >= TRUNC(SYSDATE) "
-					+ "AND (h.HS_DateUnauthorized < TRUNC(SYSDATE) OR IS NULL(h.HS_DateUnauthorized)";
+			String SQL = "SELECT * FROM PERSON p, PATIENT p2, Health_Supporter h "
+					+ "WHERE p.Per_Id = h.HS_Patient AND h.HS_Supporter = ? AND p.Per_Id = p2.PAT_PERSON "
+					+ "AND h.HS_DateAuthorized <= TRUNC(SYSDATE) "
+					+ "AND (h.HS_DateUnauthorized > TRUNC(SYSDATE) OR HS_DateUnauthorized IS NULL)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, h.getSsn());
 			rs = stmt.executeQuery();
