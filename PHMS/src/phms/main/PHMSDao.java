@@ -231,9 +231,18 @@ public class PHMSDao {
   					+ "VALUES(?,?,?,?,?)";
   			stmt = conn.prepareStatement(SQL);
   			stmt.setString(1, ht.getName());
-  			stmt.setString(2, ht.getDisease());
+  			if (ht.getDisease() == null){
+  				stmt.setNull(2, java.sql.Types.VARCHAR);
+  			} else {
+  				stmt.setString(2, ht.getDisease());
+  			}
   			stmt.setLong(3, ht.getUpper());
-  			stmt.setLong(4, ht.getLower());
+  			if (ht.getLower() == -1) {
+  				stmt.setNull(2, java.sql.Types.INTEGER);
+  			} else {
+  				stmt.setLong(4, ht.getLower());
+  			}
+  			
   			stmt.setLong(5, ht.getFreq());
   			stmt.executeUpdate();
   			close(stmt);
@@ -668,7 +677,7 @@ public class PHMSDao {
 			
 			//update the HS table
 			SQL =  "UPDATE Health_Supporter SET "
-				+ "HS_DateAuthorized = ? AND HS_DateUnauthorized = ?"
+				+ "HS_DateAuthorized = ?, HS_DateUnauthorized = ? "
 				+ "WHERE HS_Supporter = ? AND HS_Patient = ?";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setDate(1, p.getDateAuthorized());
