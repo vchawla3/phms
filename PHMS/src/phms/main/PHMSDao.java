@@ -200,7 +200,7 @@ public class PHMSDao {
   		ResultSet rs = null;
   		try{
   			conn = openConnection();
-  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r"
+  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r "
   						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
   			stmt = conn.prepareStatement(SQL);
   			stmt.setLong(1, p.getSsn());
