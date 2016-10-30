@@ -568,7 +568,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 			System.out.println("");
 			
-			//TODO Clearing Alerts
+			// Clearing Alerts
 			System.out.println("Want to clear an alert (Y/N)?");
 			String yn = console.nextLine();
 			while(!yn.equalsIgnoreCase("y") && !yn.equalsIgnoreCase("n")){
@@ -589,7 +589,27 @@ public class PersonalHealthManagementDatabaseApplication {
 					//if it is a freq alert, allow them to clear, otherwise have them enter HO... 
 					String alert = a1.getAlert();
 					if (alert.contains("is not in the specified range")) {
-						
+						try {
+							dao.clearAlert(a1);
+						} catch (SQLException e) {
+							e.printStackTrace();
+						}
+					} else {
+						//add an HO
+						System.out.println("You Must add an Health Observation to clear this alert!");
+						System.out.println("---------------------");
+						boolean success = addHO(p, a1.getHOTypeID(), a1.getHOType());
+						if (success){
+							try {
+								dao.clearAlert(a1);
+								System.out.println("Alert Cleared!");
+							} catch (SQLException e) {
+								// TODO Auto-generated catch block
+								e.printStackTrace();
+							}
+						} else {
+							System.out.println("Alert Not Cleared!");
+						}
 					}
 				} else {
 					//Because HS is logged in, just clear alert :)
@@ -651,7 +671,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			yn = console.nextLine();
 		}
 		if (yn.equalsIgnoreCase("y")){
-			addHO(p);
+			addHO(p, null, null);
 		} else {
 			System.out.println("Back to Menu");
 		}
@@ -664,37 +684,43 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	
-	private static void addHO(Patient p) {
+	private static boolean addHO(Patient p, Long id, String name) {
 		HealthObservation ho = new HealthObservation();
 		ho.setPatientId(p.getSsn());
 		System.out.println("Adding a Health Observation");
 		System.out.println("---------------------");
-		System.out.println("Select the Type");
-		ArrayList<String> names = dao.listOfHOTNames();
-		int size = names.size();
-		for(int i = 0; i < size; i++){
-			System.out.println((i+1) +": " + names.get(i));
+		if (name == null){
+			System.out.println("Select the Type");
+			ArrayList<String> names = dao.listOfHOTNames();
+			int size = names.size();
+			for(int i = 0; i < size; i++){
+				System.out.println((i+1) +": " + names.get(i));
+			}
+			int input;
+			try{
+				input = Integer.parseInt(console.nextLine());
+			} catch (NumberFormatException e){
+				System.out.println("Invalid Input back to Menu");
+				return false;
+			}
+			input--;
+			if (input >= size) {
+				System.out.println("Invalid Input back to Menu");
+				return false;
+			}
+			ho.setHoType(names.get(input));
+		} else {
+			ho.setHoType(name);
 		}
-		int input;
-		try{
-			input = Integer.parseInt(console.nextLine());
-		} catch (NumberFormatException e){
-			System.out.println("Invalid Input back to Menu");
-			return;
-		}
-		input--;
-		if (input >= size) {
-			System.out.println("Invalid Input back to Menu");
-			return;
-		}
-		ho.setHoType(names.get(input));
+		
+		
 		System.out.println("Enter the Value (If Mood enter 1-3 for Happy (1), Neutral (2), Sad (3) and if Pain enter 1-10):");
 		long in;
 		try{
 			in = Long.parseLong(console.nextLine());
 		} catch (NumberFormatException e){
 			System.out.println("Invalid Input back to Menu");
-			return;
+			return false;
 		}
 		ho.setValue(in);
 		
@@ -721,12 +747,18 @@ public class PersonalHealthManagementDatabaseApplication {
 		ho.setRecordedDate(dat2);
 		
 		try {
-			dao.addHealthObservation(ho);
-		} catch (SQLException e) {
+			if (id == null){
+				dao.addHealthObservation(ho);
+			} else {
+				ho.setHoTypeId(id);
+				dao.addHealthObservationAlreadyID(ho);
+			}
 			
+		} catch (SQLException e) {
 			e.printStackTrace();
+			return false;
 		}
-		return;
+		return true;
 	}
 
 	private static void patientViewsHS(Patient p){

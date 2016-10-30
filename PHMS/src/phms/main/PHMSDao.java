@@ -1067,4 +1067,33 @@ public class PHMSDao {
 		
 	}
 
+
+	public boolean addHealthObservationAlreadyID(HealthObservation ho) throws SQLException {
+		Connection conn = null;
+		PreparedStatement stmt = null;
+		//ResultSet rs = null;
+		try{
+			conn = openConnection();
+			String SQL = "INSERT INTO Health_Observation VALUES(?,?,?,?,?)";
+			stmt = conn.prepareStatement(SQL);
+			stmt.setLong(1, ho.getPatientId());
+			stmt.setLong(2, ho.getHoTypeId());
+			stmt.setLong(3, ho.getValue());
+			stmt.setDate(4, ho.getObservedDate());
+			stmt.setDate(5, ho.getRecordedDate());
+			stmt.executeUpdate();
+			conn.commit();
+			return true;
+		} catch(SQLException e){
+			conn.rollback();
+			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+		
+	}
+
 }
