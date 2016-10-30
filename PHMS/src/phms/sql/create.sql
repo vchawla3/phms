@@ -172,7 +172,11 @@ BEGIN
         count(HS_Patient) INTO CountOfSupporters 
     from Health_Supporter 
     where 
+<<<<<<< HEAD
         HS_Patient = :HS_OLD.HS_PATIENT AND 
+=======
+        HS_Patient = 1 AND 
+>>>>>>> branch 'master' of https://github.ncsu.edu/kmishra/phms.git
         HS_DateAuthorized <= SYSDATE AND
         (HS_DateUnAuthorized IS NULL OR HS_DateUnAuthorized >= SYSDATE);
 
