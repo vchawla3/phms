@@ -298,11 +298,11 @@ from (
 -- Count patients who are in the set of patients who have frequency alerts
 
 select 
-   count( Distinct Al_HS_Patient)
+   count( distinct al_per_patient)
 from
-    Alert
+    alert
 where
-    Al_Alert like '%frequency%%';
+    al_alert like '%frequency%%';
 
 -- Example query using function to delete a row from diagnosis.
 declare
