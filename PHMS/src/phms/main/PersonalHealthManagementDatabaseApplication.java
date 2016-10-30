@@ -1151,6 +1151,8 @@ public class PersonalHealthManagementDatabaseApplication {
 		int sick = p.isSick();
 		if (sick == 1){
 			System.out.println("Sick? yes");
+			java.sql.Date sickDate = p.getDateGotSick();
+			System.out.println("Date Got Sick: " + sickDate.toString());
 		} else {
 			System.out.println("Sick? no");
 		}
