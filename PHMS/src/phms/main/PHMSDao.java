@@ -11,21 +11,17 @@ import java.util.List;
 import java.sql.PreparedStatement;
 //import phms.model.*;
 
-public class PHMSDao {
-//	static final String jdbcURL 
-//	= "jdbc:oracle:thin:@152.7.224.5:1521:xe";
-//	
-//	static final String DBuser = "csc540";
-//	static final String DBpassword = "helloworld";
+public class PHMSDao {	
 	
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 	
 	static final String DBuser = "aapatel8";
 	static final String DBpassword = "200005768";
-	
+
 //	static final String DBuser = "vchawla3";
 //	static final String DBpassword = "200006054";
+
 	
 	public PHMSDao(){
 		try{
