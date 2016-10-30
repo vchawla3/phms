@@ -315,6 +315,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		System.out.println("---------------------");
 		System.out.println("New Recommendation");
 		//TODO add rec
+		
 	}
 
 	private static void alerts(HealthSupporter h){
@@ -604,7 +605,6 @@ public class PersonalHealthManagementDatabaseApplication {
 								dao.clearAlert(a1);
 								System.out.println("Alert Cleared!");
 							} catch (SQLException e) {
-								// TODO Auto-generated catch block
 								e.printStackTrace();
 							}
 						} else {

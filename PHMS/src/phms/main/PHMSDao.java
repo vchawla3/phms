@@ -753,7 +753,7 @@ public class PHMSDao {
 			stmt.setString(8,  p.getPassword());
 			stmt.executeUpdate();
 			close(stmt);
-			SQL = "INSERT INTO PATIENT VALUES (?, ?)";
+			SQL = "INSERT INTO PATIENT VALUES (?, ?, NULL)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setFloat(1,  p.getSsn());
 			//default set sick to 0, will be updated as diseases added/removed
@@ -935,17 +935,21 @@ public class PHMSDao {
 //  			    long s = rs.getLong("Di_Patient");
 //  			    System.out.println(s+":"+p);
 //  			}
-  			rs = stmt.executeQuery("SELECT table_name FROM user_tables");
-  			while (rs.next()) {
-  				System.out.println(rs.getString("table_name"));
-  			}
-  			
-//  			rs = stmt.executeQuery("SELECT * FROM Patient");
+//  			rs = stmt.executeQuery("SELECT table_name FROM user_tables");
 //  			while (rs.next()) {
-//  				long i  = rs.getLong("Pat_Person");
-//  			    //long i = rs.getLong("HS_Supporter");
-//  			    System.out.println(i);
+//  				System.out.println(rs.getString("table_name"));
 //  			}
+  			
+  			rs = stmt.executeQuery("SELECT * FROM Person");
+
+  			
+  			while (rs.next()) {
+  				long i  = rs.getLong("Per_Id");
+  			    //long i = rs.getLong("HS_Supporter");
+  			    System.out.println(i);
+  			    //System.out.println(rs.getString("Dis_DiseaseName"));
+  			    System.out.println(rs.getString("Per_Password"));
+  			}
   			return true;
   		} catch(SQLException e){
   			e.printStackTrace();
@@ -968,8 +972,8 @@ public class PHMSDao {
   			conn = openConnection();
   			stmt = conn.createStatement();
   			
-  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
-  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND"
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa "
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND "
   								+ "2 = (SELECT COUNT(*) FROM Diagnosis pd WHERE pd.Di_Patient = pa.Pat_Person)");
   			while (rs.next()) {
   				Patient pa = new Patient(rs);
