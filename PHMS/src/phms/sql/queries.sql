@@ -41,7 +41,7 @@ WHERE
         WHERE pd.Di_Patient = pa.Pat_Person);
 
 --List the patients who are not ‘sick’-- [Tested by Zach]
-SELECT * 
+SELECT p.Per_Id 
 FROM 
     Person p, 
     PATIENT pa
@@ -50,7 +50,7 @@ WHERE
     pa.Pat_Sick = 0;
 
 --List the health supporters who themselves are patients.-- [Tested by Zach]
-SELECT * 
+SELECT p.Per_Id 
 FROM 
     Person p, 
     Health_Supporter h
