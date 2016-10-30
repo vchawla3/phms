@@ -2,9 +2,11 @@ package phms.main;
 
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Date;
 
 public class Patient extends Person {
 	private int sick;
+	private Date dateGotSick;
 	
 	public Patient(){
 		
@@ -14,6 +16,7 @@ public class Patient extends Person {
 		super(rs);
 		try{
 			setSick(rs.getInt("Pat_Sick"));
+			setDateGotSick(rs.getDate("Pat_FeltSickOn"));
 		}catch(SQLException e){
 			System.out.println("Patient ERROR");
 			//System.out.println(e.getMessage());
@@ -21,6 +24,14 @@ public class Patient extends Person {
 		}	
 	}
 	
+	public Date getDateGotSick() {
+		return dateGotSick;
+	}
+
+	public void setDateGotSick(Date dateGotSick) {
+		this.dateGotSick = dateGotSick;
+	}
+
 	public int isSick() {
 		return sick;
 	}
