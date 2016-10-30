@@ -631,8 +631,8 @@ public class PHMSDao {
 			stmt.setString(4, p.getAddress());
 			stmt.setString(5, p.getPhoneNum());
 			stmt.setString(6, p.getSex());
-			stmt.setString(6, p.getPassword());
-			stmt.setLong(7, p.getSsn());
+			stmt.setString(7, p.getPassword());
+			stmt.setLong(8, p.getSsn());
 			stmt.executeUpdate();
 			conn.commit();	
 			return true;
