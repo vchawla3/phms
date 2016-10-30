@@ -111,7 +111,7 @@ CREATE TABLE ALERT(
     Al_Sent Date,
     Al_Alert VARCHAR(999),
     Al_Sys Date DEFAULT SYSDATE,
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_HS_Patient, Al_Sys, Al_HOT_Type),
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_PER_Patient, Al_Sys, Al_HOT_Type),
     CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_PER_Patient) REFERENCES Person(Per_Id),
     CONSTRAINT ALERT_FK_H FOREIGN KEY (Al_HOT_Type) REFERENCES Health_Observation_Type(Hot_Id)
 );
