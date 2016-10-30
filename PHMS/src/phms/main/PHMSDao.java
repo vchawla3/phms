@@ -238,7 +238,7 @@ public class PHMSDao {
   			}
   			stmt.setLong(3, ht.getUpper());
   			if (ht.getLower() == -1) {
-  				stmt.setNull(2, java.sql.Types.INTEGER);
+  				stmt.setNull(4, java.sql.Types.INTEGER);
   			} else {
   				stmt.setLong(4, ht.getLower());
   			}
@@ -280,8 +280,8 @@ public class PHMSDao {
 		ResultSet rs = null;
 		try{
 			conn = openConnection();
-			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h"
-					+ "WHERE a.Al_HS_Patient = ? AND a.Al_OBS_Type = h.Hot_Id"
+			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h "
+					+ "WHERE a.Al_PER_Patient = ? AND a.Al_OBS_Type = h.Hot_Id "
 					+ "ORDER BY a.Al_Sent";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
@@ -309,7 +309,7 @@ public class PHMSDao {
 		try{
 			conn = openConnection();
 			String SQL = "SELECT * FROM Alert a, Health_Observation_Type h "
-					+ "WHERE a.AL_READ = 0 AND a.Al_HS_Patient = ? AND a.Al_HOT_Type = h.Hot_Id "
+					+ "WHERE a.AL_READ = 0 AND a.Al_PER_Patient = ? AND a.Al_HOT_Type = h.Hot_Id "
 					+ "ORDER BY a.Al_Sent";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
@@ -336,18 +336,14 @@ public class PHMSDao {
 		ArrayList<Alert> as = new ArrayList<Alert>();
 		try{
 			conn = openConnection();
-			String SQL = "UPDATE Alert a SET"
-						+ "a.Al_Read = 1"
-						+ "WHERE"
-						+ "a.Al_HS_Supporter = ?,"
-						+ "a.Al_HS_Patient = ?,"
-						+ "a.Al_OBS_Patient = ?,"
+			String SQL = "UPDATE Alert a SET "
+						+ "a.Al_Read = 1 "
+						+ "WHERE "
+						+ "a.Al_PER_Patient = ?,"
 						+ "a.Al_OBS_Type = ?";
 			stmt = conn.prepareStatement(SQL);
-			stmt.setLong(1, a.getHSId());
-			stmt.setLong(2, a.getPatientId());
-			stmt.setLong(3, a.getPatientId());
-			stmt.setLong(4, a.getHOTypeID());
+			stmt.setLong(1, a.getPatientId());
+			stmt.setLong(2, a.getHOTypeID());
 			stmt.executeUpdate();
 			conn.commit();
 			return true;

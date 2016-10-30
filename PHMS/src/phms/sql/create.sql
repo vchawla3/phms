@@ -103,7 +103,7 @@ CREATE TABLE Recommendation(
     CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_HOT_Type) references Health_Observation_Type(HoT_Id)
 );
 CREATE TABLE ALERT(
-    Al_HS_Patient Number(16),
+    Al_PER_Patient Number(16),
     Al_HOT_Type Number(16),
     Al_Read Number(1),
     Al_Sent Date,

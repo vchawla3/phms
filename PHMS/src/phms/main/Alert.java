@@ -16,8 +16,8 @@ public class Alert {
 	
 	public Alert(ResultSet rs) throws SQLException{
 		try{
-			setPatientId(rs.getLong("Al_HS_Patient"));
-			setHSId(rs.getLong("Al_HS_Supporter"));
+			setPatientId(rs.getLong("Al_PER_Patient"));
+			//setHSId(rs.getLong("Al_HS_Supporter"));
 			setHOTypeID(rs.getLong("Al_OBS_Type"));
 			setHOType(rs.getString("Hot_Name"));
 			setRead(rs.getInt("Al_Read"));
