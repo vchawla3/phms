@@ -44,23 +44,25 @@ BEFORE INSERT
     FOR EACH ROW 
 BEGIN
     UPDATE Patient Set PAT_SICK = 1 where PAT_PERSON = :Di_New.Di_Patient;
+    UPDATE Patient Set Pat_FeltSickOn = SYSDATE where PAT_PERSON = :Di_New.Di_Patient AND Pat_FeltSickOn IS NULL;
 END;
 /
 CREATE OR REPLACE TRIGGER Di_PatMustHaveHS
 BEFORE INSERT OR UPDATE ON Diagnosis
 FOR EACH ROW 
-WHEN (NEW.Di_DiseaseName <> OLD.Di_DiseaseName)
 Declare
     CountOfSupporters Number(2);
 BEGIN
-	SELECT 
-        COUNT(*) INTO CountOfSupporters 
-    from Health_Supporter 
-    where HS_Patient = :NEW.Di_Patient;
-    
-	IF (CountOfSupporters = 0) THEN
-        raise_application_error(-20101, 'User Requires a Health Supporter');
-    END IF;
+	If (:NEW.Di_DiseaseName <> :OLD.Di_DiseaseName) THEN
+		SELECT 
+	        COUNT(*) INTO CountOfSupporters 
+	    from Health_Supporter 
+	    where HS_Patient = :NEW.Di_Patient;
+	    
+		IF (CountOfSupporters = 0) THEN
+	        raise_application_error(-20101, 'User Requires a Health Supporter');
+	    END IF;	
+	END IF;
 END;
 /
 CREATE TABLE Health_Observation_Type(
@@ -103,7 +105,7 @@ CREATE TABLE Recommendation(
     CONSTRAINT REC_FK_OBST FOREIGN KEY (Rec_HOT_Type) references Health_Observation_Type(HoT_Id)
 );
 CREATE TABLE ALERT(
-    Al_HS_Patient Number(16),
+    Al_PER_Patient Number(16),
     Al_HOT_Type Number(16),
     Al_Read Number(1),
     Al_Sent Date,
@@ -195,7 +197,7 @@ begin
     end del;
     select count(1) into deleteDiagnosis.numDiseases from Diagnosis where Di_Patient = deleteDiagnosis.di_patient;
     if deleteDiagnosis.numdiseases = 0 then <<upd>> begin 
-        update Patient set Pat_Sick = 0 where Pat_Person = deleteDiagnosis.di_patient;
+        update Patient set Pat_Sick = 0, Pat_FeltSickOn = NULL where Pat_Person = deleteDiagnosis.di_patient;
         exception when others then 
             dbms_output.put_line('Cannot update Patient di_patient='||di_patient);
             raise;
