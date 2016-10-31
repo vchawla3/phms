@@ -139,14 +139,13 @@ CREATE TABLE ALERT(
 
 -- Test Pending
 
-CREATE OR REPLACE TRIGGER ALERT_RANGE 
-AFTER INSERT OR UPDATE OF HO_VALUE ON HEALTH_OBSERVATION 
-REFERENCING OLD AS HO_OLD NEW AS HO_NEW 
+CREATE OR REPLACE TRIGGER ALERT_RANGE
+AFTER INSERT OR UPDATE OF HO_VALUE ON HEALTH_OBSERVATION
+REFERENCING NEW AS HO_NEW
 FOR EACH ROW
-DECLARE 
-    u_limit NUMBER(16); 
+DECLARE
+    u_limit NUMBER(16);
     l_limit NUMBER(16);
-    HS_support NUMBER(16);
     out_of_bounds NUMBER(16) := 1;
 BEGIN
   select Hot_UpperLimit, Hot_LowerLimit INTO u_limit, l_limit FROM Health_Observation_Type
@@ -154,10 +153,8 @@ BEGIN
   IF (:HO_NEW.Ho_Value > l_limit AND :HO_NEW.Ho_Value < u_limit) THEN
       out_of_bounds := 0;
   END IF;
-  select HS_Supporter INTO HS_support FROM Health_Supporter
-  WHERE :HO_NEW.Ho_Patient = Health_Supporter.HS_Patient;
   IF (out_of_bounds = 1) THEN
-    INSERT INTO ALERT VALUES (HS_support, :HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'));
+    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'), SYSDATE);
   END IF;
 END;
 /
