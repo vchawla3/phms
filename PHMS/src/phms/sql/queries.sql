@@ -260,12 +260,12 @@ order by al_hs_patient, month;
 
 --IN PROGRESS: For each month of 2015, list the patients with the most alerts
 select
-    AL_HS_Patient,
+    AL_Per_Patient,
     extract(month from al_sent) as Month
 from
     Alert
-group by extract(month from al_sent), AL_HS_Patient
-having count(Distinct AL_HS_Patient) = (select max( count( Distinct AL_HS_Patient) )
+group by extract(month from al_sent), AL_Per_Patient
+having count(Distinct AL_Per_Patient) = (select max( count( Distinct AL_Per_Patient) )
                                    from Alert
                                    group by extract(month from AL_sent) );
 

@@ -19,7 +19,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//System.out.println(dao.test());
+		System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -97,7 +97,7 @@ public class PersonalHealthManagementDatabaseApplication {
 
 	private static void queries() {
 		System.out.println();
-		System.out.println("Report Queries");
+		System.out.println("Reporting Queries - FROM PROJECT1DESCRIPTION");
 		System.out.println("----------");
 		System.out.println("1. Find patients who belong to more than one Sick Patient class");
 		System.out.println("2. Find all Sick patients whose Health Supporters are also Sick patients");
@@ -362,10 +362,10 @@ public class PersonalHealthManagementDatabaseApplication {
 				return;
 			}
 			inp--;
-			if (inp > size) {
+			if (inp > s) {
 				System.out.println("Invalid Input back to Menu");
 				return;
-			} else if (inp == size) {
+			} else if (inp == s) {
 				ht.setDisease(null);
 			} else {
 				ht.setDisease(patientsDiseases.get(inp));
@@ -375,9 +375,9 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		
 		if (ht.getName().equals("Pain") || ht.getName().equals("Mood")){
-			ht.setLower(-1);
+			ht.setLower(null);
 			System.out.println("Only Set Upper Limit (If Mood enter 1-3 for Happy (1), Neutral (2), Sad (3) and if Pain enter 1-10)");
-			int limit;
+			long limit;
 			try{
 				limit = Integer.parseInt(console.nextLine());
 			} catch (NumberFormatException e){
@@ -387,16 +387,16 @@ public class PersonalHealthManagementDatabaseApplication {
 			ht.setUpper(limit);
 		} else {
 			System.out.println("Set Lower Limit");
-			int upp;
+			long upp;
 			try{
 				upp = Integer.parseInt(console.nextLine());
 			} catch (NumberFormatException e){
 				System.out.println("Invalid Input back to Menu");
 				return;
 			}
-			ht.setUpper(upp);
+			ht.setLower(upp);
 			System.out.println("Set Upper Limit");
-			int limit;
+			long limit;
 			try{
 				limit = Integer.parseInt(console.nextLine());
 			} catch (NumberFormatException e){
@@ -407,7 +407,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		
 		System.out.println("Set Freq (# Days)");
-		int days;
+		long days;
 		try{
 			days = Integer.parseInt(console.nextLine());
 		} catch (NumberFormatException e){
@@ -622,6 +622,7 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void patientMenu(Patient p){
+		
 		patientUI();
 		boolean invalid;
 		do{
@@ -747,20 +748,25 @@ public class PersonalHealthManagementDatabaseApplication {
 		int s = hts.size();
 		for(int i = 0; i < s; i++){
 			HealthObservationType a = hts.get(i);
+			if (a.getUpper() == null && a.getLower() == null && a.getFreq() == null){
+				continue;
+			}
 			if (a.getName().equals("Mood")) {
 				String mood;
-				if (a.getUpper() == 1){
+				if (a.getUpper() == null){
+					mood = null;
+				} else if (a.getUpper() == 1){
 					mood = "Happy";
 				} else if(a.getUpper() == 2){
 					mood = "Neutral";
 				} else {
 					mood = "Sad";
 				}
-				System.out.println((i+1) + "- Type: " + a.getName() + " Disease: " + a.getDisease() 
+				System.out.println("- Type: " + a.getName() + " Disease: " + a.getDisease() 
 									+ " Lower Limit: " + a.getLower() + " Upper Limit: " + mood + " Frequency: " + a.getFreq());
 				
 			} else {
-				System.out.println((i+1) + "- Type: " + a.getName() + " Disease: " + a.getDisease() 
+				System.out.println("- Type: " + a.getName() + " Disease: " + a.getDisease() 
 				+ " Lower Limit: " + a.getLower() + " Upper Limit: " + a.getUpper() + " Frequency: " + a.getFreq());
 			}
 		}
@@ -1088,6 +1094,7 @@ public class PersonalHealthManagementDatabaseApplication {
 			}
 		}
 		if(h == null){
+			p = dao.patientLogin(p.getSsn(), p.getPassword());
 			patientMenu(p);
 		} else {
 			hsMenu(h);

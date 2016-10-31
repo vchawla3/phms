@@ -8,9 +8,9 @@ public class HealthObservationType {
 	private long hotID;
 	private String name;
 	private String disease;
-	private long upper;
-	private long lower;
-	private long freq;
+	private Long upper;
+	private Long lower;
+	private Long freq;
 	
 	public HealthObservationType(){
 		
@@ -22,13 +22,16 @@ public class HealthObservationType {
 		setDisease(rs.getString("Hot_Disease"));
 		setUpper(rs.getLong("Hot_UpperLimit"));
 		if (rs.wasNull()){
-			setUpper(-1);
+			setUpper(null);
 		}
 		setLower(rs.getLong("Hot_LowerLimit"));
 		if (rs.wasNull()){
-			setLower(-1);
+			setLower(null);
 		}
 		setFreq(rs.getLong("Hot_Frequency"));
+		if (rs.wasNull()){
+			setFreq(null);
+		}
 	}
 	
 	public long getHotID() {
@@ -49,22 +52,22 @@ public class HealthObservationType {
 	public void setDisease(String disease) {
 		this.disease = disease;
 	}
-	public long getUpper() {
+	public Long getUpper() {
 		return upper;
 	}
-	public void setUpper(long upper) {
+	public void setUpper(Long upper) {
 		this.upper = upper;
 	}
-	public long getLower() {
+	public Long getLower() {
 		return lower;
 	}
-	public void setLower(long lower) {
+	public void setLower(Long lower) {
 		this.lower = lower;
 	}
-	public long getFreq() {
+	public Long getFreq() {
 		return freq;
 	}
-	public void setFreq(long freq) {
+	public void setFreq(Long freq) {
 		this.freq = freq;
 	}
 }

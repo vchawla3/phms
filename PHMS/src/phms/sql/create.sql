@@ -53,16 +53,14 @@ FOR EACH ROW
 Declare
     CountOfSupporters Number(2);
 BEGIN
-	If (:NEW.Di_DiseaseName <> :OLD.Di_DiseaseName) THEN
-		SELECT 
-	        COUNT(*) INTO CountOfSupporters 
-	    from Health_Supporter 
-	    where HS_Patient = :NEW.Di_Patient;
-	    
-		IF (CountOfSupporters = 0) THEN
-	        raise_application_error(-20101, 'User Requires a Health Supporter');
-	    END IF;	
-	END IF;
+	SELECT 
+        COUNT(*) INTO CountOfSupporters 
+    from Health_Supporter 
+    where HS_Patient = :NEW.Di_Patient;
+    
+	IF (CountOfSupporters = 0) THEN
+        raise_application_error(-20101, 'User Requires a Health Supporter');
+    END IF;	
 END;
 /
 CREATE TABLE Health_Observation_Type(
@@ -154,7 +152,7 @@ BEGIN
       out_of_bounds := 0;
   END IF;
   IF (out_of_bounds = 1) THEN
-    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'), SYSDATE);
+    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, ('Health Observation Type Id ' || :HO_NEW.Ho_ObservationType || ' for user ' || :HO_NEW.Ho_Patient || ' is not in the specified range. Immediate action required.'), SYSDATE);
   END IF;
 END;
 /
