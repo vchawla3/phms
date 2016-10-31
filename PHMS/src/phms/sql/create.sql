@@ -154,7 +154,7 @@ BEGIN
       out_of_bounds := 0;
   END IF;
   IF (out_of_bounds = 1) THEN
-    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, (:HO_NEW.Ho_ObservationType || 'for' || :HO_NEW.Ho_Patient || 'is not in the specified range. Immediate action required.'), SYSDATE);
+    INSERT INTO ALERT VALUES (:HO_NEW.Ho_Patient, :HO_NEW.Ho_ObservationType, 0, :HO_NEW.Ho_ObservedDateTime, ('Health Observation Type Id ' || :HO_NEW.Ho_ObservationType || ' for user ' || :HO_NEW.Ho_Patient || ' is not in the specified range. Immediate action required.'), SYSDATE);
   END IF;
 END;
 /
