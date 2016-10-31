@@ -1065,11 +1065,11 @@ public class PHMSDao {
   			conn = openConnection();
   			stmt = conn.createStatement();
   			
-  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
-  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND"
-  								+ "EXISTS(SELECT * FROM Health_Supporter h, PATIENT pa2 WHERE"
-  								+ "h.HS_Patient = pa.Pat_Person AND"
-  								+ "h.HS_Supporter = pa2.Pat_Person AND"
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa "
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND pa.Pat_Sick = 1 AND "
+  								+ "EXISTS(SELECT * FROM Health_Supporter h, PATIENT pa2 WHERE "
+  								+ "h.HS_Patient = pa.Pat_Person AND "
+  								+ "h.HS_Supporter = pa2.Pat_Person AND "
   								+ "pa2.Pat_Sick = 1)");
   			while (rs.next()) {
   				Patient pa = new Patient(rs);
@@ -1099,9 +1099,9 @@ public class PHMSDao {
   		try{
   			conn = openConnection();
   			stmt = conn.createStatement();
-  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa"
-  								+ "WHERE p.Per_Id = pa.Pat_Person AND"
-  								+ "2 = (SELECT COUNT(*) FROM Health_Supporter h WHERE"
+  			rs = stmt.executeQuery("SELECT * FROM Person p, PATIENT pa "
+  								+ "WHERE p.Per_Id = pa.Pat_Person AND "
+  								+ "2 = (SELECT COUNT(*) FROM Health_Supporter h WHERE "
   								+ "h.HS_Patient = pa.Pat_Person)");
   			while (rs.next()) {
   				Patient pa = new Patient(rs);

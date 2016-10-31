@@ -53,16 +53,14 @@ FOR EACH ROW
 Declare
     CountOfSupporters Number(2);
 BEGIN
-	If (:NEW.Di_DiseaseName <> :OLD.Di_DiseaseName) THEN
-		SELECT 
-	        COUNT(*) INTO CountOfSupporters 
-	    from Health_Supporter 
-	    where HS_Patient = :NEW.Di_Patient;
-	    
-		IF (CountOfSupporters = 0) THEN
-	        raise_application_error(-20101, 'User Requires a Health Supporter');
-	    END IF;	
-	END IF;
+	SELECT 
+        COUNT(*) INTO CountOfSupporters 
+    from Health_Supporter 
+    where HS_Patient = :NEW.Di_Patient;
+    
+	IF (CountOfSupporters = 0) THEN
+        raise_application_error(-20101, 'User Requires a Health Supporter');
+    END IF;	
 END;
 /
 CREATE TABLE Health_Observation_Type(
