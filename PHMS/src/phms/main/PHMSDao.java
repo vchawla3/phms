@@ -1178,12 +1178,63 @@ public class PHMSDao {
 	}
 
 	public void alertsEachMonthEachPatient() {
-		// TODO Auto-generated method stub
+		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		ArrayList<Alert> p = new ArrayList<Alert>();
+  		
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			rs = stmt.executeQuery("SELECT "
+  					+ "al_per_patient, Al_Alert, extract(year from al_sent) as year, extract(month from al_sent) as month "
+  					+ "FROM ALert "
+  					+ "WHERE extract(year from al_sent) = 2015 "
+  					+ "order by al_per_patient, month");
+  			while (rs.next()) {
+  				Alert pa = new Alert(rs);
+  				System.out.println("UserID/SSN: " + pa.getPatientId() + " Alert: " + pa.getAlert()); 
+  				p.add(pa);
+  			}
+
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
 		
 	}
 
 	public void mostAlertsPerMonth() {
-		// TODO Auto-generated method stub
+		Connection conn = null;
+  		Statement stmt = null;
+  		ResultSet rs = null;
+  		
+  		try{
+  			conn = openConnection();
+  			stmt = conn.createStatement();
+  			rs = stmt.executeQuery("SELECT "
+  					+ "AL_Per_Patient, extract(month from al_sent) as Month "
+  					+ "FROM ALert "
+  					//+ "WHERE extract(year from al_sent) = 2015 "
+  					+ "group by extract(month from al_sent), AL_Per_Patient "
+  					+ "having count(Distinct AL_Per_Patient) = "
+  					+ "(select max( count( Distinct AL_Per_Patient) ) from Alert group by extract(month from AL_sent))");
+  			while (rs.next()) {
+  				int month = rs.getInt("Month");
+  				long uid = rs.getLong("AL_Per_Patient");
+  				System.out.println("Month: " + month + " - UserID/SSN: " + uid);
+  			}
+
+  		} catch(SQLException e){
+  			e.printStackTrace();
+  		} finally {
+  			close(stmt);
+            close(conn);
+            close(rs);
+  		}
 		
 	}
 

@@ -19,7 +19,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//System.out.println(dao.test());
+		System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -97,7 +97,7 @@ public class PersonalHealthManagementDatabaseApplication {
 
 	private static void queries() {
 		System.out.println();
-		System.out.println("Report Queries");
+		System.out.println("Reporting Queries - FROM PROJECT1DESCRIPTION");
 		System.out.println("----------");
 		System.out.println("1. Find patients who belong to more than one Sick Patient class");
 		System.out.println("2. Find all Sick patients whose Health Supporters are also Sick patients");
