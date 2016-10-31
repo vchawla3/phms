@@ -50,7 +50,7 @@ WHERE
     pa.Pat_Sick = 0;
 
 --List the health supporters who themselves are patients.-- [Tested by Zach]
-SELECT p.Per_Id 
+SELECT DISTINCT p.Per_Id 
 FROM 
     Person p, 
     Health_Supporter h

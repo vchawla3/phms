@@ -1,3 +1,4 @@
+delete from Alert;
 delete from Health_Observation;
 delete from Health_Observation_Type;
 delete from health_Supporter;
@@ -7,6 +8,8 @@ delete From Patient;
 delete from person;
 
 -- first drop data tables
+-- Drop trigger
+drop trigger ALERT_RANGE;
 drop table alert;
 drop table recommendation;
 drop sequence health_obs_seq;
@@ -21,5 +24,3 @@ drop table disease;
 drop table health_supporter;
 drop table patient;
 drop table person;
--- Drop trigger
-drop trigger ALERT_RANGE;
