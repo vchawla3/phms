@@ -16,11 +16,11 @@ public class PHMSDao {
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 	
-	static final String DBuser = "aapatel8";
-	static final String DBpassword = "200005768";
+//	static final String DBuser = "aapatel8";
+//	static final String DBpassword = "200005768";
 	
-//	static final String DBuser = "vchawla3";
-//	static final String DBpassword = "200006054";
+	static final String DBuser = "vchawla3";
+	static final String DBpassword = "200006054";
 	
 	public PHMSDao(){
 		try{
@@ -424,7 +424,7 @@ public class PHMSDao {
 			String SQL = "SELECT * FROM PERSON p, PATIENT p2, Health_Supporter h "
 					+ "WHERE p.Per_Id = h.HS_Patient AND h.HS_Supporter = ? AND p.Per_Id = p2.PAT_PERSON "
 					+ "AND h.HS_DateAuthorized <= TRUNC(SYSDATE) "
-					+ "AND (h.HS_DateUnauthorized > TRUNC(SYSDATE) OR HS_DateUnauthorized IS NULL)";
+					+ "AND (h.HS_DateUnauthorized > TRUNC(SYSDATE) OR h.HS_DateUnauthorized IS NULL)";
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, h.getSsn());
 			rs = stmt.executeQuery();
@@ -451,7 +451,9 @@ public class PHMSDao {
 		try{
 			conn = openConnection();
 			String SQL = "SELECT * FROM PERSON p, Health_Supporter h "
-					+ "WHERE h.HS_Patient = ? AND h.HS_Supporter = p.Per_Id";
+					+ "WHERE h.HS_Patient = ? AND h.HS_Supporter = p.Per_Id "
+					+ "AND h.HS_DateAuthorized <= TRUNC(SYSDATE) "
+					+ "AND (h.HS_DateUnauthorized > TRUNC(SYSDATE) OR h.HS_DateUnauthorized IS NULL)";;
 			stmt = conn.prepareStatement(SQL);
 			stmt.setLong(1, p.getSsn());
 			rs = stmt.executeQuery();
