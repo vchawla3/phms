@@ -19,7 +19,7 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//System.out.println(dao.test());
+		System.out.println(dao.test());
 		console = new Scanner (System.in);
 		startMenu();
 	}

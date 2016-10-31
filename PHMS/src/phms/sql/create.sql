@@ -106,10 +106,10 @@ CREATE TABLE ALERT(
     Al_PER_Patient Number(16),
     Al_HOT_Type Number(16),
     Al_Read Number(1),
-    Al_Sent Date,
+    Al_Sent Date DEFAULT SYSDATE,
     Al_Alert VARCHAR(999),
     Al_Sys Date DEFAULT SYSDATE,
-    CONSTRAINT ALERT_PK PRIMARY KEY (Al_PER_Patient, Al_Sys, Al_HOT_Type),
+    CONSTRAINT ALERT_PK PRIMARY KEY (Al_PER_Patient, Al_Sent, Al_HOT_Type),
     CONSTRAINT ALERT_FK_P FOREIGN KEY (Al_PER_Patient) REFERENCES Person(Per_Id),
     CONSTRAINT ALERT_FK_H FOREIGN KEY (Al_HOT_Type) REFERENCES Health_Observation_Type(Hot_Id)
 );
@@ -199,4 +199,20 @@ begin
     end upd; end if;
     return rows_;
 end;
+/
+
+-- Trigger to generate low activity alerts
+CREATE OR REPLACE PROCEDURE ALERT_FREQ
+AS
+BEGIN
+FOR temp IN (SELECT DISTINCT h1.Ho_Patient, h1.Ho_ObservationType from Health_Observation h1 where (SYSDATE - h1.Ho_ObservedDateTime) >= (SELECT h2.Hot_Frequency from Health_Observation_Type h2 where h1.Ho_ObservationType=h2.Hot_Id))
+LOOP
+INSERT INTO ALERT VALUES (temp.Ho_Patient, temp.Ho_ObservationType, 0, SYSDATE, 'Kindly enter your health indicators, frequency is off', SYSDATE);
+END LOOP;
+
+FOR temp2 IN (SELECT Pat_Person from PATIENT where Pat_Person NOT IN (SELECT Ho_Patient from Health_Observation) AND Pat_Sick=1)
+LOOP
+INSERT INTO ALERT VALUES (temp2.Pat_Person, 1, 0, SYSDATE, ('Kindly enter your health indicators, frequency is off'), SYSDATE);
+END LOOP;
+END ALERT_FREQ;
 /
