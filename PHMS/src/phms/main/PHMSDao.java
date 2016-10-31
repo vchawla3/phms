@@ -16,11 +16,11 @@ public class PHMSDao {
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 	
-//	static final String DBuser = "aapatel8";
-//	static final String DBpassword = "200005768";
+	static final String DBuser = "aapatel8";
+	static final String DBpassword = "200005768";
 	
-	static final String DBuser = "vchawla3";
-	static final String DBpassword = "200006054";
+//	static final String DBuser = "vchawla3";
+//	static final String DBpassword = "200006054";
 	
 	public PHMSDao(){
 		try{
@@ -211,10 +211,80 @@ public class PHMSDao {
   		ResultSet rs = null;
   		try{
   			conn = openConnection();
-  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r "
-  						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
-  			stmt = conn.prepareStatement(SQL);
+  			String part = "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ? "
+  					+ "UNION "
+  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h "
+  					+ "where "
+  					+ "h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) "
+  					+ "AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) "
+  					+ "AND h.hot_name NOT IN (SELECT h.Hot_Name "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)";
+  			
+  			String part2 = "SELECT * "
+  					+ "from Health_Observation_Type1 h1, Recommendation r, Person p "
+  					+ "where h1.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ? "
+  					+ "UNION "
+  					+ "SELECT h2.Hot_Id, h2.Hot_Name, h2.Hot_UpperLimit, h2.Hot_LowerLimit, h2.Hot_Frequency "
+  					+ "from Health_Observation_Type h2 "
+  					+ "where "
+  					+ "h2.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) "
+  					+ "AND h2.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) "
+  					+ "AND h2.hot_name NOT IN (SELECT h.Hot_Name "
+  					+ "from Health_Observation_Type h3, Recommendation r, Person p "
+  					+ "where h3.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)";
+  			
+  			String SQL = "select * from "
+  					+ "("+ part +")"
+  					+ "union "
+  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h "
+  					+ "where h.Hot_Disease IS NULL AND h.hot_name NOT IN(" + part +")";
+  			
+  			
+  			String SQL2 = "((SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) "
+  					+ "UNION "
+  					+ "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h"
+  					+ "where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?)"
+  					+ "AND"
+  					+ "h.Hot_Id NOT IN ("
+  					+ "SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN ("
+  					+ "SELECT h.Hot_Name "
+  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?))) AS TMP "
+  					+ "UNION "
+  					+ "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
+  					+ "from Health_Observation_Type h "
+  					+ "where h.Hot_Disease IS NULL AND h.hot_name NOT IN (Select hot_name from TMP)) ";
+//  					+ "(SELECT h.Hot_Name "
+//  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+//  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) "
+//  					+ "Union "
+//  					+ "(SELECT h.Hot_Name "
+//  					+ "from Health_Observation_Type h "
+//  					+ "where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) "
+//  					+ "AND "
+//  					+ "h.Hot_Id NOT IN ("
+//  					+ "SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN ("
+//  					+ "SELECT h.Hot_Name "
+//  					+ "from Health_Observation_Type h, Recommendation r, Person p "
+//  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)))";
+  			
+  			//String SQL3 = "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) UNION SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN (SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) union SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h where h.Hot_Disease IS NULL AND h.hot_name NOT IN ((SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) Union (SELECT h.Hot_Name from Health_Observation_Type h where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN (SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)))";
+  			String SQL3 = "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) UNION SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN (SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) union SELECT h.Hot_Id, h.Hot_Name, h.Hot_Disease, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency from Health_Observation_Type h where h.Hot_Disease IS NULL AND h.hot_name NOT IN ((SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?) Union (SELECT h.Hot_Name from Health_Observation_Type h where h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) AND h.hot_name NOT IN (SELECT h.Hot_Name from Health_Observation_Type h, Recommendation r, Person p where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)))";
+  			stmt = conn.prepareStatement(SQL3);
   			stmt.setLong(1, p.getSsn());
+  			stmt.setLong(2, p.getSsn());
+  			stmt.setLong(3, p.getSsn());
+  			stmt.setLong(4, p.getSsn());
+  			stmt.setLong(5, p.getSsn());
+  			stmt.setLong(6, p.getSsn());
   			rs = stmt.executeQuery();
   			while (rs.next()) {
   				HealthObservationType pa = new HealthObservationType(rs);
@@ -237,29 +307,11 @@ public class PHMSDao {
   		ResultSet rs = null;
   		try{
   			conn = openConnection();
-  			String SQL = "with tmp as "
-  					+ "(SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
-  					+ "from Health_Observation_Type h, Recommendation r, Person p "
-  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ? "
-  					+ "UNION "
-  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
-  					+ "from Health_Observation_Type h "
-  					+ "where "
-  					+ "h.Hot_Disease IN (select d.Di_DiseaseName from Person p, Diagnosis d where d.Di_Patient=p.Per_Id AND p.Per_Id = ?) "
-  					+ "AND h.Hot_Id NOT IN (SELECT Rec_HOT_Type from Recommendation) "
-  					+ "AND h.hot_name NOT IN (SELECT h.Hot_Name "
-  					+ "from Health_Observation_Type h, Recommendation r, Person p "
-  					+ "where h.Hot_Id = r.Rec_HOT_Type AND p.Per_Id=r.Rec_HS_Patient AND p.Per_Id = ?)) "
-  					+ "select * from tmp "
-  					+ "union "
-  					+ "SELECT h.Hot_Id, h.Hot_Name, h.Hot_UpperLimit, h.Hot_LowerLimit, h.Hot_Frequency "
-  					+ "from Health_Observation_Type h "
-  					+ "where h.Hot_Disease IS NULL AND h.hot_name NOT IN(tmp)";
+  			String SQL = "SELECT * FROM Health_Observation_Type h, Recommendation r "
+						+ "WHERE r.Rec_HS_Patient = ? AND r.Rec_HOT_Type = h.Hot_Id";
 
   			stmt = conn.prepareStatement(SQL);
   			stmt.setLong(1, p.getSsn());
-  			stmt.setLong(2, p.getSsn());
-  			stmt.setLong(3, p.getSsn());
   			rs = stmt.executeQuery();
   			while (rs.next()) {
   				HealthObservationType pa = new HealthObservationType(rs);
@@ -293,7 +345,7 @@ public class PHMSDao {
   				stmt.setString(2, ht.getDisease());
   			}
   			stmt.setLong(3, ht.getUpper());
-  			if (ht.getLower() == -1) {
+  			if (ht.getLower() == null) {
   				stmt.setNull(4, java.sql.Types.INTEGER);
   			} else {
   				stmt.setLong(4, ht.getLower());
@@ -307,10 +359,10 @@ public class PHMSDao {
   			rs = stmt.executeQuery(SQL);
   			long id = 0;
   			while (rs.next()) {
-  				id = rs.getLong("Hot_Id");
+  				id = rs.getLong("MAX(Hot_Id)");
   			}
   			close(stmt);
-  			SQL = "INSERT INTO Recommendation VALUES(?,?,?)";
+  			SQL = "INSERT INTO Recommendation VALUES(?,?,?,NULL)";
   			stmt = conn.prepareStatement(SQL);
   			stmt.setLong(1, h.getSsn());
   			stmt.setLong(2, p.getSsn());
