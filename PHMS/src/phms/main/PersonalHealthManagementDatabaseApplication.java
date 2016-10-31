@@ -1023,11 +1023,11 @@ public class PersonalHealthManagementDatabaseApplication {
 		try {
 			dao.addHSAlreadyPerson(h);
 		} catch (SQLException e) {
-			System.out.println("Error!");
-			if(e.getErrorCode()==-20001) {
+			//System.out.println("Error!");
+			if(Math.abs(e.getErrorCode())==20001) {
 				System.out.println("Error! You cannot have more than 2 Health Supporters!");
 			} else {
-				e.printStackTrace();
+				//e.printStackTrace();
 			}
 		}
 	}
@@ -1048,13 +1048,18 @@ public class PersonalHealthManagementDatabaseApplication {
 		}
 		selection--;
 		HealthSupporter h = hs.get(selection);
-		try {
-			if (dao.removeHSForPatient(p.getSsn(), h)){
-				System.out.println("Success, HS removed!");
+		if (hs.size() == 1 && p.isSick() == 1){
+			System.out.println("Cannot remove HS if you are sick, you need at least one!");
+		} else {
+			try {
+				if (dao.removeHSForPatient(p.getSsn(), h)){
+					System.out.println("Success, HS removed!");
+				}
+			} catch (SQLException e) {
+				//e.printStackTrace();
 			}
-		} catch (SQLException e) {
-			e.printStackTrace();
-		};
+		}
+		
 		System.out.println("---------------------");
 	}
 	
