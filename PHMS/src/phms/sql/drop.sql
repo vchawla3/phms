@@ -2,8 +2,8 @@ delete from Health_Observation;
 delete from Health_Observation_Type;
 delete from health_Supporter;
 delete from diagnosis;
-delete From Patient;
 delete from disease;
+delete From Patient;
 delete from person;
 
 -- first drop data tables
