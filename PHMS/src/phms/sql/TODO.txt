@@ -14,7 +14,7 @@
 ## Front End
 - [x] HS Adding recommendations
 - [x] Patient clearing alerts
-- [] Printing out the HOT Type (Recommended, Diseases, or Generic) for a patient
+- [x] Printing out the HOT Type (Recommended, Diseases, or Generic) for a patient
 
 ## SQL Queries
 - [x] Find patients who belong to more than one sick patient class (that have more
