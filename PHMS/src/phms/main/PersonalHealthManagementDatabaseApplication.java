@@ -19,7 +19,12 @@ public class PersonalHealthManagementDatabaseApplication {
 		//SETUP DB CONNECTION HERE
 		dao = new PHMSDao();
 		
-		//System.out.println(dao.test());
+		try {
+			dao.checkLowActivity();
+		} catch (SQLException e) {
+			// TODO Auto-generated catch block
+			//e.printStackTrace();
+		}
 		console = new Scanner (System.in);
 		startMenu();
 	}
@@ -236,6 +241,12 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void hsMenu(HealthSupporter h){
+		try {
+			dao.checkLowActivity();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		}
 		hsUI();
 		boolean invalid;
 		do{
@@ -622,7 +633,12 @@ public class PersonalHealthManagementDatabaseApplication {
 	}
 	
 	private static void patientMenu(Patient p){
-		
+		try {
+			dao.checkLowActivity();
+		} catch (SQLException e1) {
+			// TODO Auto-generated catch block
+			//e1.printStackTrace();
+		}
 		patientUI();
 		boolean invalid;
 		do{

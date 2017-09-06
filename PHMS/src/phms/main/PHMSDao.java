@@ -16,11 +16,11 @@ public class PHMSDao {
 	static final String jdbcURL 
 	= "jdbc:oracle:thin:@orca.csc.ncsu.edu:1521:orcl01";
 	
-	static final String DBuser = "aapatel8";
-	static final String DBpassword = "200005768";
+//	static final String DBuser = "aapatel8";
+//	static final String DBpassword = "200005768";
 	
-//	static final String DBuser = "vchawla3";
-//	static final String DBpassword = "200006054";
+	static final String DBuser = "vchawla3";
+	static final String DBpassword = "200006054";
 	
 	public PHMSDao(){
 		try{
@@ -504,6 +504,30 @@ public class PHMSDao {
 		} catch(SQLException e){
 			conn.rollback();
 			e.printStackTrace();
+			System.out.println(e.getMessage());
+			return false;
+		} finally {
+			close(stmt);
+            close(conn);
+		}
+		
+	}
+	
+	public boolean checkLowActivity() throws SQLException {
+		Connection conn = null;
+		CallableStatement stmt = null;
+		try{
+			conn = openConnection();
+			//Call stored proc to update patient table 
+			String call = "{ call ALERT_FREQ }";
+			stmt = conn.prepareCall(call);
+			
+			stmt.executeUpdate();
+			conn.commit();
+			return true;
+		} catch(SQLException e){
+			conn.rollback();
+			//e.printStackTrace();
 			System.out.println(e.getMessage());
 			return false;
 		} finally {
